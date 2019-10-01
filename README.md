@@ -22,6 +22,8 @@ One instance of each application below is required for the integration:
 
 1.	Octane – Version 12.60.47 and higher
 1.	Bitbucket – Version 5.16 and higher
+
+One of the following web servers:
 1.	Tomcat – Version 7.0 and higher
 1.	Jetty – Version 9.4.20 and higher
 
