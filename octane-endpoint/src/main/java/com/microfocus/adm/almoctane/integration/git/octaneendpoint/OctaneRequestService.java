@@ -322,7 +322,7 @@ public class OctaneRequestService {
     private void addUDFToEditForm(String entityType, String udfName, OctaneCollection<EntityModel> forms) {
         for (EntityModel form : forms) {
             if (form.getValue("logical_name").getValue().toString().contains("0")) {
-                postNewFormJsonAtWorkspaceLevel(form, addUDFToFormJson(udfName, form), Long.valueOf(form.getValue("workspace_id").getValue().toString()));
+                postNewFormJsonAtWorkspaceLevel(form, addUDFToFormJson(udfName, form), Long.parseLong(form.getValue("workspace_id").getValue().toString()));
 
                 LOGGER.info(String.format("UDF %s was added to the %s edit form with id %s.", udfName, entityType, form.getId()));
             }
@@ -334,8 +334,8 @@ public class OctaneRequestService {
      * This means we are in a Shared Space and we have to add the memo UDF in the master workspace
      *
      * @param forms - The forms of an entity.
-     * @return - true if any of the forms belong to the master workspace.
-     * - false otherwise.
+     * @return  - true if any of the forms belong to the master workspace.
+     *          - false otherwise.
      */
     private boolean areFormsFromMasterWorkspace(OctaneCollection<EntityModel> forms) {
         for (EntityModel form : forms) {

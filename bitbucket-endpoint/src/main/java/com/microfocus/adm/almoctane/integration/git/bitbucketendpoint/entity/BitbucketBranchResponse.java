@@ -27,8 +27,8 @@ public class BitbucketBranchResponse extends BitbucketResponse {
     private Set<BitbucketBranch> branches;
 
     /**
-     * @return - true if the response was the last page
-     * - false otherwise
+     * @return  - true if the response was the last page
+     *          - false otherwise
      */
     public boolean isLastPage() {
         return isLastPage;

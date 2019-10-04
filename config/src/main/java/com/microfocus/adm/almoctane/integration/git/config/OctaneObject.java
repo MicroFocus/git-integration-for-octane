@@ -32,8 +32,8 @@ public class OctaneObject {
 
     /**
      * @param o - The Octane object.
-     * @return - true if the objects have the same shared space and workspace.
-     * - false otherwise.
+     * @return  - true if the objects have the same shared space and workspace.
+     *          - false otherwise.
      */
     @Override
     public boolean equals(Object o) {

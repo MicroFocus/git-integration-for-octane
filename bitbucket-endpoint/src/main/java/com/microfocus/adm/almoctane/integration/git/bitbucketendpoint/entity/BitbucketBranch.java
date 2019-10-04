@@ -27,7 +27,7 @@ public class BitbucketBranch implements Branch {
     @Key("displayId")
     private String branchName;
 
-    private String browseCodeOnBranchUrl;
+    private String branchSourceCodeUrl;
 
     private String repositoryName;
 
@@ -57,7 +57,7 @@ public class BitbucketBranch implements Branch {
         BitbucketBrowseCodeUrl url = new BitbucketBrowseCodeUrl(server);
         url.setRawPath(String.format("/projects/%s/repos/%s/browse", projectName, repositoryName));
 
-        this.browseCodeOnBranchUrl = url.setBranch(this).toString();
+        this.branchSourceCodeUrl = url.setBranch(this).toString();
     }
 
     /**
@@ -76,18 +76,18 @@ public class BitbucketBranch implements Branch {
     }
 
     /**
-     * @return - The browse code URL.
+     * @return - The source code URL.
      */
     @Override
-    public String getBrowseCodeOnBranchUrl() {
-        return this.browseCodeOnBranchUrl;
+    public String geBranchSourceCodeUrl() {
+        return this.branchSourceCodeUrl;
     }
 
     /**
      * @param obj - A branch object.
-     * @return - 0 if the branch ids are the same
-     * - 1 if the branch id is lexicographically greater than the argument's branch id
-     * - -1 if the branch id is lexicographically less than the argument's branch id
+     * @return  - 0 if the branch ids are the same
+     *          - 1 if the branch id is lexicographically greater than the argument's branch id
+     *          - -1 if the branch id is lexicographically less than the argument's branch id
      */
     @Override
     public int compareTo(Branch obj) {
@@ -104,8 +104,8 @@ public class BitbucketBranch implements Branch {
 
     /**
      * @param obj - A branch object
-     * @return - true if the branch ids are lexicographically equal
-     * - false otherwise
+     * @return  - true if the branch ids are lexicographically equal
+     *          - false otherwise
      */
     @Override
     public boolean equals(Object obj) {

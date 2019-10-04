@@ -150,8 +150,8 @@ public class OctanePool {
      * Checks if the Octane connection has already been added to the pool.
      *
      * @param octaneObject - The Octane object.
-     * @return - true if the connection has already been added to the pool.
-     * - false otherwise.
+     * @return  - true if the connection has already been added to the pool.
+     *          - false otherwise.
      */
     private boolean isInPool(OctaneObject octaneObject) {
         return octaneObjects.containsKey(octaneObject);

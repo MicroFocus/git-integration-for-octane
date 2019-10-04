@@ -28,8 +28,8 @@ public class BitbucketPullRequestResponse extends BitbucketResponse {
     private Set<BitbucketPullRequest> pullRequests;
 
     /**
-     * @return - true if the response was the last page
-     * - false otherwise
+     * @return  - true if the response was the last page
+     *          - false otherwise
      */
     public boolean isLastPage() {
         return isLastPage;

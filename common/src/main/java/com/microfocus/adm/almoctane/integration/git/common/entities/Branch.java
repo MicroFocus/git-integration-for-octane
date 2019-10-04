@@ -28,9 +28,9 @@ public interface Branch extends Comparable<Branch> {
     String getBranchId();
 
     /**
-     * @return - The branch browse code URL.
+     * @return - The branch source code URL.
      */
-    String getBrowseCodeOnBranchUrl();
+    String geBranchSourceCodeUrl();
 
     /**
      * @return - The name of the repository.

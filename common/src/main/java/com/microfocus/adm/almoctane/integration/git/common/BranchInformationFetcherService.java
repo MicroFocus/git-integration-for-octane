@@ -37,7 +37,7 @@ public class BranchInformationFetcherService extends OctaneToRepositoryService {
 
             //put on separate lines a link to each branch
             branches.forEach(br -> responseHtml.append(
-                    String.format("<p><a href=\"%s\"> %s</a> - %s</p>", br.getBrowseCodeOnBranchUrl(), br.getBranchName(), br.getRepositoryName())));
+                    String.format("<p><a href=\"%s\"> %s</a> - %s</p>", br.geBranchSourceCodeUrl(), br.getBranchName(), br.getRepositoryName())));
 
         } catch (SummarizedException e) {
             LOGGER.error(String.format("Exception while getting the branches from the repository\n\t\t Additional information: %s Stacktrace:\n %s",
