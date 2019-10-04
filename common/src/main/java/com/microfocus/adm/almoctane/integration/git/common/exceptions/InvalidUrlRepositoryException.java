@@ -16,21 +16,20 @@ package com.microfocus.adm.almoctane.integration.git.common.exceptions;
 
 
 /**
- *  Exception used when there is a problem with the URL of the repository
+ * Exception used when there is a problem with the URL of the repository
  */
-public class InvalidUrlRepositoryException extends RepositoryException{
+public class InvalidUrlRepositoryException extends RepositoryException {
 
     /**
-     *
-     * @param message - message of the exception
-     * @param cause - cause of the exception
+     * @param message      - message of the exception
+     * @param cause        - cause of the exception
      * @param repoHostName - the name of the repository host
-     * @param actualUrl - the URL that was used
-     * @param repoHostUrl -  the URL of the repository
+     * @param actualUrl    - the URL that was used
+     * @param repoHostUrl  -  the URL of the repository
      */
     public InvalidUrlRepositoryException(String message, Throwable cause, String repoHostName, String actualUrl, String repoHostUrl) {
         super(message, cause, repoHostName, repoHostUrl);
-        lineList.add(0,"Could not use the "+ actualUrl +" url");
+        lineList.add(0, "Could not use the " + actualUrl + " url");
     }
 
 }

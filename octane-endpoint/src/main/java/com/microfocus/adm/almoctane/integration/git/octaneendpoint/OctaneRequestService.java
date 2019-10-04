@@ -113,9 +113,9 @@ public class OctaneRequestService {
     /**
      * Returns the entity model with the given id, type and fields.
      *
-     * @param id - The id of the entity.
+     * @param id         - The id of the entity.
      * @param entityName - The entity type name.
-     * @param fields - The fields that will be fetched.
+     * @param fields     - The fields that will be fetched.
      * @return - The entity model with the given id, type and fields.
      */
     private EntityModel getEntityModel(String id, String entityName, String... fields) {
@@ -140,10 +140,10 @@ public class OctaneRequestService {
      * Updates the pull requests udf. If the UDF does not exist, it will be created and added to the forms.
      * Moreover, a rule for 'Make read-only' will be created so that only Space Admins can modify the memo field.
      *
-     * @param id - Id of the entity.
+     * @param id          - Id of the entity.
      * @param entityModel - The entity model oof the work item.
-     * @param udfName - The name of the memo UDF.
-     * @param udfLabel - The label of the UDF.
+     * @param udfName     - The name of the memo UDF.
+     * @param udfLabel    - The label of the UDF.
      */
     public void updateEntityModel(String id, EntityModel entityModel, String udfName, String udfLabel) {
         createUdfIdNotPresent(udfName, udfLabel);
@@ -190,7 +190,7 @@ public class OctaneRequestService {
      * The UDF will then be added to the form.
      * Moreover, a rule for 'Make read-only' will be created so that only Space Admins can modify the memo field.
      *
-     * @param udfName - The name of the memo UDF.
+     * @param udfName  - The name of the memo UDF.
      * @param udfLabel - The label of the memo UDF
      */
     private void createUdfIdNotPresent(String udfName, String udfLabel) {
@@ -209,7 +209,7 @@ public class OctaneRequestService {
     /**
      * Returns a UDF entity model if it exists in Octane.
      *
-     * @param udfName - The name of the UDF we search for.
+     * @param udfName    - The name of the UDF we search for.
      * @param entityType -  The entity type.
      * @return - An entity model of the memo UDF.
      */
@@ -233,8 +233,8 @@ public class OctaneRequestService {
      * The UDF will then be added to the form. (What is also done here is getting all the forms for an entity type)
      * Moreover, a rule for 'Make read-only' will be created so that only Space Admins can modify the memo field.
      *
-     * @param udfName - The name of the memo UDF.
-     * @param udfLabel - The label of the memo UDF.
+     * @param udfName    - The name of the memo UDF.
+     * @param udfLabel   - The label of the memo UDF.
      * @param entityType - The entity type for which the memo UDF will be created.
      */
     private void createUdf(String udfName, String udfLabel, String entityType) {
@@ -244,7 +244,7 @@ public class OctaneRequestService {
         try {
             OctaneCollection<EntityModel> forms = getFormsForEntity(entityType);
 
-            if(!areFormsFromMasterWorkspace(forms)) {
+            if (!areFormsFromMasterWorkspace(forms)) {
                 octane.entityList(METADATA_FIELDS).create()
                         .entities(Collections.singletonList(udfEntityModel))
                         .execute();
@@ -262,7 +262,7 @@ public class OctaneRequestService {
             addUDFToEditForm(entityType, udfName, forms);
             LOGGER.info(String.format("UDF %s was added to the edit form of %s", udfName, entityType));
 
-            if(!areFormsFromMasterWorkspace(forms)) {
+            if (!areFormsFromMasterWorkspace(forms)) {
                 makeUdfReadOnly(entityType, udfName, workspace);
             } else {
                 makeUdfReadOnly(entityType, udfName, 500);
@@ -281,8 +281,8 @@ public class OctaneRequestService {
      * Adds a rule to make am UDF read only for a specific entityType.
      *
      * @param entityType - The entity type.
-     * @param udfName - The name of the memo UDF.
-     * @param workspace - The workspace where the rule will be created.
+     * @param udfName    - The name of the memo UDF.
+     * @param workspace  - The workspace where the rule will be created.
      */
     private void makeUdfReadOnly(String entityType, String udfName, long workspace) {
         String json = getReadOnlyRuleJson(entityType, udfName);
@@ -299,7 +299,7 @@ public class OctaneRequestService {
      * This is a JSON for the 'Make read-only' rule creation.
      *
      * @param entityType - The type of the entity.
-     * @param udfName - The name of the memo UDF.
+     * @param udfName    - The name of the memo UDF.
      * @return - The JSON for rule creation.
      */
     private String getReadOnlyRuleJson(String entityType, String udfName) {
@@ -316,13 +316,13 @@ public class OctaneRequestService {
      * The UDF will be added to the Edit form of the entity.
      *
      * @param entityType - The entity type.
-     * @param udfName - The name of the memo UDF.
-     * @param forms - All the forms for the entity type given.
+     * @param udfName    - The name of the memo UDF.
+     * @param forms      - All the forms for the entity type given.
      */
     private void addUDFToEditForm(String entityType, String udfName, OctaneCollection<EntityModel> forms) {
         for (EntityModel form : forms) {
             if (form.getValue("logical_name").getValue().toString().contains("0")) {
-                postNewFormJsonAtWorkspaceLevel(form, addUDFToFormJson(udfName, form), Long.valueOf(form.getValue("workspace_id").getValue().toString()));
+                postNewFormJsonAtWorkspaceLevel(form, addUDFToFormJson(udfName, form), Long.parseLong(form.getValue("workspace_id").getValue().toString()));
 
                 LOGGER.info(String.format("UDF %s was added to the %s edit form with id %s.", udfName, entityType, form.getId()));
             }
@@ -339,7 +339,7 @@ public class OctaneRequestService {
      */
     private boolean areFormsFromMasterWorkspace(OctaneCollection<EntityModel> forms) {
         for (EntityModel form : forms) {
-            if(form.getValue("workspace_id").getValue().toString().equals("500")) {
+            if (form.getValue("workspace_id").getValue().toString().equals("500")) {
                 return true;
             }
         }
@@ -365,8 +365,8 @@ public class OctaneRequestService {
     /**
      * Makes a PUT request to update the form with the newly created memo UDF.
      *
-     * @param form - The form that will be updated.
-     * @param bodyJson - The JSON which contains the new UDF.
+     * @param form      - The form that will be updated.
+     * @param bodyJson  - The JSON which contains the new UDF.
      * @param workspace - The workspace where the update will happen
      */
     private void postNewFormJsonAtWorkspaceLevel(EntityModel form, JSONObject bodyJson, long workspace) {
@@ -383,7 +383,7 @@ public class OctaneRequestService {
      * Returns the JSON for updating the forms with the new UDF.
      *
      * @param udfName - The name of the memo UDF.
-     * @param form - The form where the UDF will be added.
+     * @param form    - The form where the UDF will be added.
      * @return - The JSON containing the new UDF.
      */
     private JSONObject addUDFToFormJson(String udfName, EntityModel form) {
@@ -400,8 +400,8 @@ public class OctaneRequestService {
     /**
      * Returns an entity model for the memo UDF.
      *
-     * @param udfName - The name of the memo UDF.
-     * @param udfLabel - The label of the memo UDF.
+     * @param udfName    - The name of the memo UDF.
+     * @param udfLabel   - The label of the memo UDF.
      * @param entityType - The type of the entity.
      * @return - the entity model for the memo UDF.
      */
@@ -425,7 +425,7 @@ public class OctaneRequestService {
     private JSONObject getJsonObjectFromEntityModel(EntityModel entityModel) {
         JSONObject json = new JSONObject();
 
-        for(FieldModel value : entityModel.getValues()) {
+        for (FieldModel value : entityModel.getValues()) {
             json.put(value.getName(), value.getValue());
         }
 

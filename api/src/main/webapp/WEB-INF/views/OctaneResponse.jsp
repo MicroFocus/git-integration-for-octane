@@ -48,7 +48,7 @@
             width: 100%;
         }
 
-        .text-small{
+        .text-small {
             color: #555555;
             font-size: 16px;
         }
@@ -72,6 +72,7 @@
         var cookieName = "GitIntegrationForOctane-autoCloseResponseCookie";
 
         <%--posts a message to octane to close the dialog window--%>
+
         function closeOctane() {
             var message = {
                 event_name: 'octane_close_dialog',
@@ -90,11 +91,13 @@
         };
 
         <%-- set a cookie with the name cname and value cvalue --%>
+
         function setCookie(cname, cvalue) {
             document.cookie = cname + "=" + cvalue + ";path=/";
         }
 
         <%--  get the value of the cookie with the name cname --%>
+
         function getCookie(cname) {
             var name = cname + "=";
             var decodedCookie = decodeURIComponent(document.cookie);
@@ -112,12 +115,14 @@
         }
 
         <%--delete the cookie with the name cname--%>
+
         function deleteCookie(cname) {
             document.cookie = cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
         }
 
         <%--set the cookie to auto close the dialog based on the checkbox --%>
+
         function setAutoCloseCookie() {
             var checkBox = document.getElementById("autoClose");
             if (checkBox.checked === true) {
@@ -133,6 +138,7 @@
         var closeWindowTimeout;
 
         <%--displays the bottom closing text and sets the dialog closing timer based on the state of the cookie--%>
+
         function updateAutoCloseState() {
             var text = document.getElementById("autoClose-timer");
             var checkBox = document.getElementById("autoClose");
@@ -175,8 +181,12 @@
                 and the related pull requests will soon be available in the detailed view of the
                 selected ${ids.size()>1?"items":"item"}.
             </c:if>
+            <c:if test="${requestType.equals('branch-information')}">
+                and the related branches will soon be available in the detailed view of the
+                selected ${ids.size()>1?"items":"item"}.
+            </c:if>
         </p>
-        <c:if test="${requestType.equals('pull-requests')}">
+        <c:if test="${requestType.equals('pull-requests') || requestType.equals('branch-information')}">
             <p>An entity refresh might be needed to display the results in the UDF that was configured in the properties
                 file.</p>
         </c:if>
