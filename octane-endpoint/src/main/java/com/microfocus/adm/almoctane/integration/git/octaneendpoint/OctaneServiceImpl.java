@@ -61,6 +61,7 @@ public class OctaneServiceImpl extends OctaneService {
             OctaneCollection<EntityModel> commitsPrimitiveEntityModels = octaneRequestService.getCommits(id);
 
             commitsPrimitiveEntityModels.forEach(getCommitInfoAndAddToCommitsList(commits));
+            LOGGER.info(String.format("Got %s commits from Octane", commits.size()));
         } catch (OctaneRequestException e) {
             LOGGER.error(String.format("Exception caught during request. Message: %s. Commits will not be retrieved", e.getMessage()));
         }

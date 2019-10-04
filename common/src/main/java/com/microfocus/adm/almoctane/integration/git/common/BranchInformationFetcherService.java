@@ -1,15 +1,12 @@
 package com.microfocus.adm.almoctane.integration.git.common;
 
 import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
-import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
 import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneUDF;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.SummarizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,34 +30,18 @@ public class BranchInformationFetcherService extends OctaneToRepositoryService {
      */
     @Override
     public void execute() {
-        List<Commit> commits = octaneService.getCommits();
-
-        LOGGER.info("Got " + commits.size() + " commits from Octane.");
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
-        Date date = new Date(System.currentTimeMillis());
-
-
-        StringBuilder responseHtml = new StringBuilder("<html><body><p><b>Last updated on: ");
-        //add the current time as the time of the last update
-        responseHtml.append(formatter.format(date));
-        responseHtml.append("</b></p>");
+        StringBuilder responseHtml = CommonUtils.getLastModifiedHtmlString();
 
         try {
-            List<Branch> pullRequests = repositoryConnectionAdapter.getBranchesFromCommits(commits);
-            LOGGER.info("Got " + pullRequests.size() + " pull requests from the Repository.");
+            List<Branch> branches = repositoryConnectionAdapter.getBranchesFromCommits(octaneService.getCommits());
 
-            //put on separate lines a link to each pull request
-            pullRequests.forEach(pr -> responseHtml.append("<p><a href=\"")
-                    .append(pr.getBrowseCodeOnBranchUrl())
-                    .append("\">")
-                    .append(pr.getBranchName())
-                    .append("</a> - ").append(pr.getRepositoryName())
-                    .append("</p>"));
+            //put on separate lines a link to each branch
+            branches.forEach(br -> responseHtml.append(
+                    String.format("<p><a href=\"%s\"> %s</a> - %s</p>", br.getBrowseCodeOnBranchUrl(), br.getBranchName(), br.getRepositoryName())));
 
         } catch (SummarizedException e) {
-            LOGGER.error("Exception while getting the pull requests from the repository\n\t\t Additional information: " +
-                    e.getMessage() + "Stacktrace: " + Arrays.toString(e.getStackTrace()));
+            LOGGER.error(String.format("Exception while getting the branches from the repository\n\t\t Additional information: %s Stacktrace:\n %s",
+                    e.getMessage(), Arrays.toString(e.getStackTrace())));
 
             //add a summarized error message to the response
             List<String> lineList = e.getSummary();
