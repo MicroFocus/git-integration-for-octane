@@ -101,6 +101,7 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
         //sort pull requests
         List<PullRequest> sortedPullRequests = new LinkedList<>(pullRequests);
         sortedPullRequests.sort(Comparable::compareTo);
+        LOGGER.info(String.format("Got %s pull requests form Bitbucket", sortedPullRequests.size()));
 
         return sortedPullRequests;
     }
@@ -119,7 +120,7 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
                         bitbucketBranches = getBranchesFromCommit(commit);
                         branches.addAll(bitbucketBranches);
                     } catch (Exception e) {
-                        LOGGER.warn("BRanches related to the commit with the hash " + commit.getHash() +
+                        LOGGER.warn("Branches related to the commit with the hash " + commit.getHash() +
                                 " cloned from " + commit.getRepoLink() + " could not be retrieved!");
 
                         if (!(e instanceof InvalidUrlRepositoryException))
@@ -134,10 +135,11 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
                 }
         );
 
-        List<Branch> sortedPullRequests = new LinkedList<>(branches);
-        sortedPullRequests.sort(Comparable::compareTo);
+        List<Branch> sortedBranches = new LinkedList<>(branches);
+        sortedBranches.sort(Comparable::compareTo);
+        LOGGER.info(String.format("Got %s branches from Bitbucket", sortedBranches.size()));
 
-        return sortedPullRequests;
+        return sortedBranches;
     }
 
     /**
