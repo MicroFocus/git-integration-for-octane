@@ -1,47 +1,35 @@
-/*
-Copyright 2019 EntIT Software LLC, a Micro Focus company, L.P.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
- */
-
 package com.microfocus.adm.almoctane.integration.git.common;
 
+import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
 import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneUDF;
-import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.SummarizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
- * Class used to fetch the pull requests from the repository into Octane
+ * Class used to fetch the branch information from a repository into Octane
  */
-public class PullRequestFetcherService extends OctaneToRepositoryService {
+public class BranchInformationFetcherService extends OctaneToRepositoryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestFetcherService.class);
 
     /**
      * @see OctaneToRepositoryService
      */
-    public PullRequestFetcherService(OctaneService octaneService, RepositoryConnectionAdapter repositoryConnectionAdapter) {
+    public BranchInformationFetcherService(OctaneService octaneService, RepositoryConnectionAdapter repositoryConnectionAdapter) {
         super(octaneService, repositoryConnectionAdapter);
     }
 
     /**
      * Performs a call to Octane to get the commits. Using the gathered commits, a request is made to the repository to
-     * get all the pull request related to those commits. A string containing an html page with the collected
-     * pull requests is built and posted back to the UDF created in Octane.
+     * get all the branches related to those commits. A string containing an html page with the collected
+     * branches is built and posted back to the UDF created in Octane.
      */
     @Override
     public void execute() {
@@ -59,16 +47,17 @@ public class PullRequestFetcherService extends OctaneToRepositoryService {
         responseHtml.append("</b></p>");
 
         try {
-            List<PullRequest> pullRequests = repositoryConnectionAdapter.getPullRequestsFromCommits(commits);
+            List<Branch> pullRequests = repositoryConnectionAdapter.getBranchesFromCommits(commits);
             LOGGER.info("Got " + pullRequests.size() + " pull requests from the Repository.");
 
             //put on separate lines a link to each pull request
             pullRequests.forEach(pr -> responseHtml.append("<p><a href=\"")
-                    .append(pr.getPullRequestLink())
+                    .append(pr.getBrowseCodeOnBranchUrl())
                     .append("\">")
-                    .append(pr.getPullRequestName())
-                    .append("</a> - ").append(pr.getPullRequestState())
+                    .append(pr.getBranchName())
+                    .append("</a> - ").append(pr.getRepositoryName())
                     .append("</p>"));
+
         } catch (SummarizedException e) {
             LOGGER.error("Exception while getting the pull requests from the repository\n\t\t Additional information: " +
                     e.getMessage() + "Stacktrace: " + Arrays.toString(e.getStackTrace()));
@@ -81,7 +70,7 @@ public class PullRequestFetcherService extends OctaneToRepositoryService {
 
         } finally {
             responseHtml.append("</body></html>");
-            octaneService.postToUdf(responseHtml.toString(), OctaneUDF.Type.PULL_REQUEST);
+            octaneService.postToUdf(responseHtml.toString(), OctaneUDF.Type.BRANCH);
         }
     }
 }

@@ -15,24 +15,23 @@ limitations under the License.
 package com.microfocus.adm.almoctane.integration.git.common.exceptions;
 
 /**
- *  Exception used when there is a problem related to the repository
+ * Exception used when there is a problem related to the repository
  */
 public class RepositoryException extends SummarizedException {
     protected String repoHostName;
     protected String repoHostUrl;
 
     /**
-     *
-     * @param message - message of the exception
-     * @param cause - cause of the exception
+     * @param message      - message of the exception
+     * @param cause        - cause of the exception
      * @param repoHostName - the name of the repository host
-     * @param repoHostUrl - the URL of the repository
+     * @param repoHostUrl  - the URL of the repository
      */
     public RepositoryException(String message, Throwable cause, String repoHostName, String repoHostUrl) {
         super(message, cause);
         this.repoHostName = repoHostName;
         this.repoHostUrl = repoHostUrl;
-        lineList.add(0,"The problem occurred while working with the "+ repoHostName +" url: "+repoHostUrl);
+        lineList.add(0, "The problem occurred while working with the " + repoHostName + " url: " + repoHostUrl);
     }
 
 }

@@ -11,22 +11,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-
-package com.microfocus.adm.almoctane.integration.git.common.exceptions;
+package com.microfocus.adm.almoctane.integration.git.common.entities;
 
 /**
- * Exception used when there is a problem with a request
+ * Class to modeling a branch
  */
-public class RequestException extends SummarizedException {
+public interface Branch extends Comparable<Branch> {
+    /**
+     * @return - The name of the branch.
+     */
+    String getBranchName();
 
     /**
-     * @param message - message of the exception
-     * @param cause   - cause of the exception
+     * @return - The id of the branch.
      */
-    public RequestException(String message, Throwable cause) {
-        super(message, cause);
-        lineList.add(0, "Failed to make the request!");
-    }
+    String getBranchId();
 
+    /**
+     * @return - The branch browse code URL.
+     */
+    String getBrowseCodeOnBranchUrl();
 
+    /**
+     * @return - The name of the repository.
+     */
+    String getRepositoryName();
 }

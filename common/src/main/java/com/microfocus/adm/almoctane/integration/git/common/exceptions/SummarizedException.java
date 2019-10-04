@@ -20,40 +20,36 @@ import java.util.List;
 /**
  * Base class for exceptions which can have an easy to understand summary.
  */
-public abstract class SummarizedException extends RuntimeException{
+public abstract class SummarizedException extends RuntimeException {
 
     protected List<String> lineList;
 
     /**
-     *
      * @param message - message of the exception
-     * @param cause - cause of the exception
+     * @param cause   - cause of the exception
      */
     public SummarizedException(String message, Throwable cause) {
         super(message, cause);
         lineList = new LinkedList<>();
-        lineList.add("Check the \"Git interaction for Octane\" logs for more details.");
+        lineList.add("Check the \"Git integration for Octane\" logs for more details.");
     }
 
     /**
-     *
      * @return - message of the exception including the summary
      */
     @Override
     public String getMessage() {
-        StringBuilder message= new StringBuilder();
+        StringBuilder message = new StringBuilder();
         List<String> lineList = getSummary();
-        lineList.forEach(line->message.append(line).append("\n"));
+        lineList.forEach(line -> message.append(line).append("\n"));
         message.append(super.getMessage());
         return message.toString();
     }
 
     /**
-     *
      * @return - a list of lines describing the exception
      */
-    public List<String> getSummary()
-    {
+    public List<String> getSummary() {
         return lineList;
     }
 }

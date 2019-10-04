@@ -26,15 +26,18 @@ public class PropertiesFileKeys {
     public static final String PROXY_HOST = "proxy.host";
     public static final String PROXY_PORT = "proxy.port";
 
-    public static final String OCTANE_UDF_NAME = "octane.udfName";
-    public static final String OCTANE_UDF_LABEL = "octane.udfLabel";
+    public static final String PULL_REQUESTS_INFORMATION_UDF_NAME = "octane.pullRequestsInformationUDFName";
+    public static final String PULL_REQUESTS_INFORMATION_UDF_LABEL = "octane.pullRequestsInformationUDFLabel";
 
-    public static final String REPOSITORY_HOST ="repo.host";
+    public static final String BRANCH_INFORMATION_UDF_NAME = "octane.branchInformationUDFName";
+    public static final String BRANCH_INFORMATION_UDF_LABEL = "octane.branchInformationUDFLabel";
 
-    public static final String BITBUCKET_SERVER ="bitbucketserver";
+    public static final String REPOSITORY_HOST = "repo.host";
+
+    public static final String BITBUCKET_SERVER = "bitbucketserver";
 
 
-    public static final String _URL =".url";
-    public static final String _ACCESS =".access";
+    public static final String _URL = ".url";
+    public static final String _ACCESS = ".access";
 
 }

@@ -24,7 +24,6 @@ public class BitbucketSelf {
     private String href;
 
     /**
-     *
      * @return - get the link to self
      */
     public String getHref() {

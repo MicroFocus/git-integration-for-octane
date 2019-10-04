@@ -22,8 +22,7 @@ public class Commit {
     private String repoLink;
 
     /**
-     *
-     * @param hash - hash of the commit
+     * @param hash     - hash of the commit
      * @param repoLink - link to the repository from which the commit was cloned
      */
     public Commit(String hash, String repoLink) {
@@ -32,7 +31,6 @@ public class Commit {
     }
 
     /**
-     *
      * @return - link to the repository from which the commit was cloned
      */
     public String getRepoLink() {
@@ -40,7 +38,6 @@ public class Commit {
     }
 
     /**
-     *
      * @return - hash of the commit
      */
     public String getHash() {

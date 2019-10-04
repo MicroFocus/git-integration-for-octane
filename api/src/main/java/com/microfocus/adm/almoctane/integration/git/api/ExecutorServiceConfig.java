@@ -24,12 +24,11 @@ import java.util.concurrent.Executors;
 public class ExecutorServiceConfig {
 
     /**
-     *
      * @return - executor service containing number of cores - 1 threads
      */
     @Bean("fixedThreadPool")
     public ExecutorService createFixedThreadPool() {
         int nrCores = Runtime.getRuntime().availableProcessors();
-        return Executors.newFixedThreadPool(nrCores-1);
+        return Executors.newFixedThreadPool(nrCores - 1);
     }
 }

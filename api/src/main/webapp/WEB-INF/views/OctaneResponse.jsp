@@ -175,8 +175,16 @@
                 and the related pull requests will soon be available in the detailed view of the
                 selected ${ids.size()>1?"items":"item"}.
             </c:if>
+            <c:if test="${requestType.equals('branch-information')}">
+                and the related branches will soon be available in the detailed view of the
+                selected ${ids.size()>1?"items":"item"}.
+            </c:if>
         </p>
         <c:if test="${requestType.equals('pull-requests')}">
+            <p>An entity refresh might be needed to display the results in the UDF that was configured in the properties
+                file.</p>
+        </c:if>
+        <c:if test="${requestType.equals('branch-information')}">
             <p>An entity refresh might be needed to display the results in the UDF that was configured in the properties
                 file.</p>
         </c:if>

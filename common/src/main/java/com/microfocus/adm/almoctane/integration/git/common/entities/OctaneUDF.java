@@ -14,19 +14,40 @@ limitations under the License.
 
 package com.microfocus.adm.almoctane.integration.git.common.entities;
 
-public interface PullRequest extends Comparable<PullRequest> {
-    /**
-     * @return - link to the pull request
-     */
-    String getPullRequestLink();
+/**
+ * Class modeling an Octane UDF.
+ */
+public class OctaneUDF {
+    public Type getType() {
+        return type;
+    }
+
+    public enum Type {
+        PULL_REQUEST,
+        BRANCH
+    }
+
+    private Type type;
+    private String name;
+    private String label;
+
+    public OctaneUDF(String name, String label, Type type) {
+        this.name = name;
+        this.label = label;
+        this.type = type;
+    }
 
     /**
-     * @return - name of the pull request
+     * @return - The name of the UDF.
      */
-    String getPullRequestName();
+    public String getName() {
+        return name;
+    }
 
     /**
-     * @return - state of the pull request
+     * @return - The label of the UDF.
      */
-    String getPullRequestState();
+    public String getLabel() {
+        return label;
+    }
 }

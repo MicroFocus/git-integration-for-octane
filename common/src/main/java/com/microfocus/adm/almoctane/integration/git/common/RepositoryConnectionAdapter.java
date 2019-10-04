@@ -14,6 +14,7 @@ limitations under the License.
 
 package com.microfocus.adm.almoctane.integration.git.common;
 
+import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
 import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 
@@ -26,9 +27,14 @@ import java.util.Set;
 public interface RepositoryConnectionAdapter {
 
     /**
-     * @param commits - list of commits for which the pull request
-     * @return - list of all the pull requests related to the commits
+     * @param commits - List of commits.
+     * @return - List of all the pull requests related to the commits
      */
     List<PullRequest> getPullRequestsFromCommits(List<Commit> commits);
 
+    /**
+     * @param commits - List of commits.
+     * @return - A list with Branches related to the given commits.
+     */
+    List<Branch> getBranchesFromCommits(List<Commit> commits);
 }

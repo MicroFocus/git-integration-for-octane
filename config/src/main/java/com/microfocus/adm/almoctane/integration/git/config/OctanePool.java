@@ -47,8 +47,8 @@ public class OctanePool {
      * If the connection does not exist in this pool, it will be added.
      *
      * @param sharedSpace - The Octane shared space.
-     * @param workspace - The Octane workspace.
-     * @param url - The Octane URL.
+     * @param workspace   - The Octane workspace.
+     * @param url         - The Octane URL.
      * @return - A connection to the Octane URL.
      */
     public Octane getOctane(long sharedSpace, long workspace, String url) {
@@ -67,7 +67,7 @@ public class OctanePool {
      * Returns a GoogleHttpClient for Octane.
      *
      * @param sharedSpace - The Octane shared space.
-     * @param url - The Octane URL.
+     * @param url         - The Octane URL.
      * @return - The http client.
      */
     public GoogleHttpClient getOctaneHttpClient(long sharedSpace, String url) {
@@ -97,8 +97,8 @@ public class OctanePool {
     /**
      * Adds a new Octane connection to the pool.
      *
-     * @param sharedSpace - The Octane shared space.
-     * @param workspace - The Octane workspace.
+     * @param sharedSpace  - The Octane shared space.
+     * @param workspace    - The Octane workspace.
      * @param octaneObject - The OctaneObject which will be added to the octaneObjects list, to keep track of
      *                     the Octane connections
      */
@@ -150,8 +150,8 @@ public class OctanePool {
      * Checks if the Octane connection has already been added to the pool.
      *
      * @param octaneObject - The Octane object.
-     * @return  - true if the connection has already been added to the pool.
-     *          - false otherwise.
+     * @return - true if the connection has already been added to the pool.
+     * - false otherwise.
      */
     private boolean isInPool(OctaneObject octaneObject) {
         return octaneObjects.containsKey(octaneObject);

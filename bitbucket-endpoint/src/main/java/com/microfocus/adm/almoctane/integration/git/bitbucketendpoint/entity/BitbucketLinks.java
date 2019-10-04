@@ -26,7 +26,6 @@ public class BitbucketLinks {
     private List<BitbucketSelf> self;
 
     /**
-     *
      * @return returns the link to self
      */
     public String getSelfLink() {

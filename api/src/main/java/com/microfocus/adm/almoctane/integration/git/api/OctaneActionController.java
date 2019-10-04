@@ -14,10 +14,7 @@ limitations under the License.
 
 package com.microfocus.adm.almoctane.integration.git.api;
 
-import com.microfocus.adm.almoctane.integration.git.common.OctaneService;
-import com.microfocus.adm.almoctane.integration.git.common.OctaneToRepositoryService;
-import com.microfocus.adm.almoctane.integration.git.common.PullRequestFetcherService;
-import com.microfocus.adm.almoctane.integration.git.common.RepositoryConnectionAdapter;
+import com.microfocus.adm.almoctane.integration.git.common.*;
 import com.microfocus.adm.almoctane.integration.git.config.Factory;
 import com.microfocus.adm.almoctane.integration.git.config.FactoryException;
 import com.microfocus.adm.almoctane.integration.git.config.OctanePoolException;
@@ -41,22 +38,19 @@ public class OctaneActionController {
     private final ExecutorService executorService;
 
     /**
-     *
      * @param executorService - executor service to which the requests will be submitted.
      */
     public OctaneActionController(@Qualifier("fixedThreadPool") ExecutorService executorService) {
         this.executorService = executorService;
-
     }
 
     /**
-     *
-     * @param model - the model of the request
-     * @param ids - the ids of the work items in Octane for which the request is made
-     * @param dialogId - id of the dialog which opens in Octane after a button request
-     * @param server - octane server form which the request is made
+     * @param model       - the model of the request
+     * @param ids         - the ids of the work items in Octane for which the request is made
+     * @param dialogId    - id of the dialog which opens in Octane after a button request
+     * @param server      - octane server form which the request is made
      * @param sharedSpace - octane shared space form which the request is made
-     * @param workSpace - octane work space form which the request is made
+     * @param workSpace   - octane workspace form which the request is made
      * @return -  the response page
      */
     @GetMapping("/pull-requests")
@@ -95,4 +89,48 @@ public class OctaneActionController {
         return new ModelAndView("OctaneResponse", model);
     }
 
+
+    /**
+     * @param model       - the model of the request
+     * @param ids         - the ids of the work items in Octane for which the request is made
+     * @param dialogId    - id of the dialog which opens in Octane after a button request
+     * @param server      - octane server form which the request is made
+     * @param sharedSpace - octane shared space form which the request is made
+     * @param workSpace   - octane workspace form which the request is made
+     * @return -  the response page
+     */
+    @GetMapping("/branch-information")
+    public ModelAndView fetchBranchInformationIntoOctane(ModelMap model,
+                                                         @RequestParam List<String> ids,
+                                                         @RequestParam String dialogId,
+                                                         @RequestParam String server,
+                                                         @RequestParam Long sharedSpace,
+                                                         @RequestParam Long workSpace) {
+        //set the attributes which will modify the response page
+        model.addAttribute("ids", ids);
+        model.addAttribute("dialogId", dialogId);
+        model.addAttribute("sharedSpace", sharedSpace);
+        model.addAttribute("workSpace", workSpace);
+        model.addAttribute("requestType", "branch-information");
+
+        executorService.submit(() -> {
+            try {
+                Factory factory = Factory.getInstance();
+
+                ids.parallelStream().forEach((id) -> {
+                    OctaneService octaneService = factory.getOctaneService(id, sharedSpace, workSpace, server);
+                    RepositoryConnectionAdapter repositoryConnectionAdapter = factory.getImplementation();
+                    OctaneToRepositoryService service = new BranchInformationFetcherService(octaneService, repositoryConnectionAdapter);
+                    service.execute();
+                });
+            } catch (OctanePoolException | IOException | FactoryException e) {
+                LOGGER.error("Could not execute the request. \n\tMessage: " + e.getMessage() + "\n\tStacktrace: " + Arrays.toString(e.getStackTrace()));
+            } catch (Exception e) {
+                LOGGER.error("An unknown exception occurred. \n\tMessage: " + e.getMessage() + "\n\tStacktrace: " + Arrays.toString(e.getStackTrace()));
+            }
+
+        });
+
+        return new ModelAndView("OctaneResponse", model);
+    }
 }

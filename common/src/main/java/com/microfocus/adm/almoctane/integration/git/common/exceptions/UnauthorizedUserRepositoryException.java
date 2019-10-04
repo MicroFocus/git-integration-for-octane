@@ -15,18 +15,17 @@ limitations under the License.
 package com.microfocus.adm.almoctane.integration.git.common.exceptions;
 
 /**
- *  Exception used when a user does not have access to perform the actions needed on the repository
+ * Exception used when a user does not have access to perform the actions needed on the repository
  */
-public class UnauthorizedUserRepositoryException extends RepositoryException{
+public class UnauthorizedUserRepositoryException extends RepositoryException {
 
     /**
-     *
-     * @param message - message of the exception
-     * @param cause - cause of the exception
+     * @param message      - message of the exception
+     * @param cause        - cause of the exception
      * @param repoHostName - the name of the repository host
-     * @param repoHostUrl - the URL of the repository
+     * @param repoHostUrl  - the URL of the repository
      */
     public UnauthorizedUserRepositoryException(String message, Throwable cause, String repoHostName, String repoHostUrl) {
-        super(message, cause,repoHostName, repoHostUrl);
+        super(message, cause, repoHostName, repoHostUrl);
     }
 }
