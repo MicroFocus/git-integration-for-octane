@@ -16,10 +16,10 @@ package com.microfocus.adm.almoctane.integration.git.common;
 
 import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity;
 import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * All the actions that we need to perform on a given repository
@@ -31,6 +31,12 @@ public interface RepositoryConnectionAdapter {
      * @return - List of all the pull requests related to the commits
      */
     List<PullRequest> getPullRequestsFromCommits(List<Commit> commits);
+
+    /**
+     * @param octaneEntity - the Octane entity for which the branch will be created
+     * @return - the url used for creating a new branch in the repository
+     */
+    String getCreateBranchUrl(OctaneEntity octaneEntity);
 
     /**
      * @param commits - List of commits.

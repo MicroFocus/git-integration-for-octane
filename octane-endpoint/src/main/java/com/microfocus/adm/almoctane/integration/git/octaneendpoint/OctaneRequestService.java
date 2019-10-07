@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
+
 /**
  * This class is used for making Octane requests.
  */
@@ -45,28 +47,6 @@ public class OctaneRequestService {
     private String server;
     private long workspace;
     private long sharedSpace;
-
-    private static final String URL = "url";
-    private static final String NAME = "name";
-    private static final String PATH = "path";
-    private static final String BODY = "body";
-    private static final String EPIC = "epic";
-    private static final String STORY = "story";
-    private static final String LABEL = "label";
-    private static final String DEFECT = "defect";
-    private static final String FEATURE = "feature";
-    private static final String SUBTYPE = "subtype";
-    private static final String COMMITS = "commits";
-    private static final String REVISION = "revision";
-    private static final String WORK_ITEMS = "work_items";
-    private static final String ENTITY_TYPE = "entity_type";
-    private static final String SCM_COMMITS = "scm_commits";
-    private static final String REPOSITORIES = "repositories";
-    private static final String QUALITY_STORY = "quality_story";
-    private static final String ENTITY_SUBTYPE = "entity_subtype";
-    private static final String METADATA_FIELDS = "metadata_fields";
-    private static final String SCM_REPOSITORIES = "scm_repositories";
-    private static final String FIELD_METADATA_MEMO = "field_metadata_memo";
 
     private static final List<String> entityTypes = new ArrayList<>(Arrays.asList(EPIC, FEATURE, STORY, DEFECT, QUALITY_STORY));
 
@@ -86,14 +66,18 @@ public class OctaneRequestService {
      * @param id - The id of the work item.
      * @return - The entity model of the work item.
      */
-    public EntityModel getWorkItemEntity(String id) {
+    public EntityModel getWorkItemEntityWithCommits(String id) {
         return getEntityModel(id, WORK_ITEMS, COMMITS);
     }
+
+    public EntityModel getWorkItemEntityWithName(String id) {
+        return getEntityModel(id, WORK_ITEMS, NAME, SUBTYPE);
+    }
+
 
     /**
      * Returns the entity model for a commit with a specific id.
      *
-     * @param id - The id of the commit.
      * @return - The entity model of the commit.
      */
     public EntityModel getCommit(String id) {
@@ -244,17 +228,17 @@ public class OctaneRequestService {
         try {
             OctaneCollection<EntityModel> forms = getFormsForEntity(entityType);
 
-            if (!areFormsFromMasterWorkspace(forms)) {
-                octane.entityList(METADATA_FIELDS).create()
-                        .entities(Collections.singletonList(udfEntityModel))
-                        .execute();
-            } else {
+            if (areFormsFromMasterWorkspace(forms)) {
                 final OctaneHttpRequest.PostOctaneHttpRequest postOctaneHttpRequest = new OctaneHttpRequest.PostOctaneHttpRequest(
                         String.format("%s/api/shared_spaces/%s/workspaces/%s/metadata_fields", server, sharedSpace, 500),
                         OctaneHttpRequest.JSON_CONTENT_TYPE,
                         getJsonObjectFromEntityModel(udfEntityModel).toString()
                 );
                 googleHttpClient.execute(postOctaneHttpRequest);
+            } else {
+                octane.entityList(METADATA_FIELDS).create()
+                        .entities(Collections.singletonList(udfEntityModel))
+                        .execute();
             }
 
             LOGGER.info(String.format("UDF %s was created for entity type %s", udfName, entityType));
@@ -262,10 +246,10 @@ public class OctaneRequestService {
             addUDFToEditForm(entityType, udfName, forms);
             LOGGER.info(String.format("UDF %s was added to the edit form of %s", udfName, entityType));
 
-            if (!areFormsFromMasterWorkspace(forms)) {
-                makeUdfReadOnly(entityType, udfName, workspace);
-            } else {
+            if (areFormsFromMasterWorkspace(forms)) {
                 makeUdfReadOnly(entityType, udfName, 500);
+            } else {
+                makeUdfReadOnly(entityType, udfName, workspace);
             }
 
             LOGGER.info(String.format("UDF %s is now read only for %s", udfName, entityType));
@@ -334,8 +318,8 @@ public class OctaneRequestService {
      * This means we are in a Shared Space and we have to add the memo UDF in the master workspace
      *
      * @param forms - The forms of an entity.
-     * @return  - true if any of the forms belong to the master workspace.
-     *          - false otherwise.
+     * @return - true if any of the forms belong to the master workspace.
+     * - false otherwise.
      */
     private boolean areFormsFromMasterWorkspace(OctaneCollection<EntityModel> forms) {
         for (EntityModel form : forms) {

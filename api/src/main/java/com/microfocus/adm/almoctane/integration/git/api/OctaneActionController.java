@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -74,8 +75,8 @@ public class OctaneActionController {
 
                     OctaneService octaneService = factory.getOctaneService(id, sharedSpace, workSpace, server);
                     RepositoryConnectionAdapter repositoryConnectionAdapter = factory.getImplementation();
-                    OctaneToRepositoryService prfs = new PullRequestFetcherService(octaneService, repositoryConnectionAdapter);
-                    prfs.execute();
+                    OctaneToRepositoryService service = new PullRequestFetcherService(octaneService, repositoryConnectionAdapter);
+                    service.execute();
                 });
 
             } catch (OctanePoolException | IOException | FactoryException e) {
@@ -87,6 +88,33 @@ public class OctaneActionController {
         });
 
         return new ModelAndView("OctaneResponse", model);
+    }
+
+    /**
+     * @param id          - the id of the work item in Octane for which the request is made
+     * @param server      - octane server form which the request is made
+     * @param sharedSpace - octane shared space form which the request is made
+     * @param workSpace   - octane work space form which the request is made
+     * @return - a redirect view to the branch creation page of the repository
+     */
+    @GetMapping("/create-branch-page")
+    public RedirectView getCreateBranchPage(@RequestParam String id,
+                                            @RequestParam String server,
+                                            @RequestParam Long sharedSpace,
+                                            @RequestParam Long workSpace) {
+        try {
+            Factory factory = Factory.getInstance();
+            OctaneService octaneService = factory.getOctaneService(id, sharedSpace, workSpace, server);
+            RepositoryConnectionAdapter repositoryConnectionAdapter = factory.getImplementation();
+            BranchCreationUrlFetcherService service = new BranchCreationUrlFetcherService(octaneService, repositoryConnectionAdapter);
+            service.execute();
+            return new RedirectView(service.getBranchCreationUrl());
+        } catch (OctanePoolException | IOException | FactoryException e) {
+            LOGGER.error("Could not execute the request. \n\tMessage: " + e.getMessage() + "\n\tStacktrace: " + Arrays.toString(e.getStackTrace()));
+        } catch (Exception e) {
+            LOGGER.error("An unknown exception occurred. \n\tMessage: " + e.getMessage() + "\n\tStacktrace: " + Arrays.toString(e.getStackTrace()));
+        }
+        return null;
     }
 
 

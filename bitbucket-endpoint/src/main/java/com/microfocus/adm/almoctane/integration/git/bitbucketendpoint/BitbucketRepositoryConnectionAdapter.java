@@ -27,6 +27,7 @@ import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls.Bitbu
 import com.microfocus.adm.almoctane.integration.git.common.RepositoryConnectionAdapter;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity;
 import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.InvalidUrlRepositoryException;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.RepositoryException;
@@ -104,6 +105,37 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
         LOGGER.info(String.format("Got %s pull requests form Bitbucket", sortedPullRequests.size()));
 
         return sortedPullRequests;
+    }
+
+    /**
+     * Returns an url to Bitbucket branch creation page with name and type values already filled in
+     *
+     * @param octaneEntity - Octane entity containing the name and type used to fill in values in the creation page
+     * @return - url to Bitbucket creation page
+     */
+    @Override
+    public String getCreateBranchUrl(OctaneEntity octaneEntity) {
+        String bitbucketType;
+        switch (octaneEntity.getType()) {
+            case DEFECT:
+                bitbucketType = "bug";
+                break;
+            case FEATURE:
+                bitbucketType = "story";
+                break;
+            default:
+                bitbucketType = "custom";
+
+        }
+        StringBuilder url = new StringBuilder();
+        url.append(serverRestUrl.getScheme()).append("://").append(serverRestUrl.getHost());
+        if (serverRestUrl.getPort() != -1)
+            url.append(":").append(serverRestUrl.getPort());
+        url.append("/plugins/servlet/create-branch?issueType=")
+                .append(bitbucketType)
+                .append("&issueSummary=")
+                .append(octaneEntity.getName());
+        return url.toString();
     }
 
     /**

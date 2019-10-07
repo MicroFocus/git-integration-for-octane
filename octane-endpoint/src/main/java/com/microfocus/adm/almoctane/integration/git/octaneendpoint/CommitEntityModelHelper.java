@@ -20,6 +20,8 @@ import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
 
 import java.util.function.Function;
 
+import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
+
 /**
  * Facilitates the work with EntityModels that are commits.
  */
@@ -44,7 +46,7 @@ public class CommitEntityModelHelper {
      * @return - The hash of the commit.
      */
     private String getCommitHash() {
-        return entityModel.getValue("revision").getValue().toString();
+        return entityModel.getValue(REVISION).getValue().toString();
     }
 
     /**
@@ -52,7 +54,7 @@ public class CommitEntityModelHelper {
      */
     @SuppressWarnings("unchecked")
     private String getCommitRepositoryId() {
-        return ((OctaneCollection<EntityModel>) entityModel.getValue("repositories").getValue()).iterator().next().getId();
+        return ((OctaneCollection<EntityModel>) entityModel.getValue(REPOSITORIES).getValue()).iterator().next().getId();
     }
 
     /**
@@ -60,6 +62,6 @@ public class CommitEntityModelHelper {
      * @return - The repository URL.
      */
     private String getRepositoryUrl(EntityModel repositoryEntityModel) {
-        return repositoryEntityModel.getValue("url").getValue().toString();
+        return repositoryEntityModel.getValue(URL).getValue().toString();
     }
 }

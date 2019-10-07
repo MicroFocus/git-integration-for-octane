@@ -20,7 +20,7 @@ import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 import java.math.BigInteger;
 
 /**
- * Class used to describe the pull request information received from the bitbucket response
+ * Class used to describe the pull request information received from the Bitbucket response
  */
 public class BitbucketPullRequest implements PullRequest {
     @Key
