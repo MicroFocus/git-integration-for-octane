@@ -108,10 +108,10 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
     }
 
     /**
-     * Returns an url to bitbucket branch creation page with name and type values already filled in
+     * Returns an url to Bitbucket branch creation page with name and type values already filled in
      *
      * @param octaneEntity - Octane entity containing the name and type used to fill in values in the creation page
-     * @return - url to bitbucket creation page
+     * @return - url to Bitbucket creation page
      */
     @Override
     public String getCreateBranchUrl(OctaneEntity octaneEntity) {
