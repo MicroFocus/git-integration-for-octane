@@ -49,9 +49,9 @@ public class OctaneActionController {
      * @param model       - the model of the request
      * @param ids         - the ids of the work items in Octane for which the request is made
      * @param dialogId    - id of the dialog which opens in Octane after a button request
-     * @param server      - octane server form which the request is made
-     * @param sharedSpace - octane shared space form which the request is made
-     * @param workSpace   - octane workspace form which the request is made
+     * @param server      - Octane server form which the request is made
+     * @param sharedSpace - Octane shared space form which the request is made
+     * @param workSpace   - Octane workspace form which the request is made
      * @return -  the response page
      */
     @GetMapping("/pull-requests")
@@ -92,9 +92,9 @@ public class OctaneActionController {
 
     /**
      * @param id          - the id of the work item in Octane for which the request is made
-     * @param server      - octane server form which the request is made
-     * @param sharedSpace - octane shared space form which the request is made
-     * @param workSpace   - octane work space form which the request is made
+     * @param server      - Octane server form which the request is made
+     * @param sharedSpace - Octane shared space form which the request is made
+     * @param workSpace   - Octane work space form which the request is made
      * @return - a redirect view to the branch creation page of the repository
      */
     @GetMapping("/create-branch-page")
@@ -122,9 +122,9 @@ public class OctaneActionController {
      * @param model       - the model of the request
      * @param ids         - the ids of the work items in Octane for which the request is made
      * @param dialogId    - id of the dialog which opens in Octane after a button request
-     * @param server      - octane server form which the request is made
-     * @param sharedSpace - octane shared space form which the request is made
-     * @param workSpace   - octane workspace form which the request is made
+     * @param server      - Octane server form which the request is made
+     * @param sharedSpace - Octane shared space form which the request is made
+     * @param workSpace   - Octane workspace form which the request is made
      * @return -  the response page
      */
     @GetMapping("/branch-information")

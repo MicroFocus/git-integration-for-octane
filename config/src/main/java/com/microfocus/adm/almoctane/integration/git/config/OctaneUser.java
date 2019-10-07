@@ -24,7 +24,7 @@ public class OctaneUser {
     /**
      * User and password pair or api key and secret pair
      *
-     * @param user     - the username or api key with which the connection to octane is made
+     * @param user     - the username or api key with which the connection to Octane is made
      * @param password - the password or the secret
      */
     public OctaneUser(String user, String password) {

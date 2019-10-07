@@ -100,7 +100,7 @@ public class OctaneServiceImpl extends OctaneService {
     }
 
     /**
-     * Converts the entity subtype received form octane into EntityType
+     * Converts the entity subtype received form Octane into EntityType
      *
      * @param octaneType - the subtype of an entity
      * @return - converted type
