@@ -56,7 +56,7 @@ public class Factory {
                 properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_LABEL), OctaneUDF.Type.PULL_REQUEST));
 
         userDefinedFields.put(OctaneUDF.Type.BRANCH, new OctaneUDF(properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_NAME),
-                properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_NAME), OctaneUDF.Type.BRANCH));
+                properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_LABEL), OctaneUDF.Type.BRANCH));
 
         String repoHost, server, access;
         repoHost = properties.getProperty(PropertiesFileKeys.REPOSITORY_HOST);

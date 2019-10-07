@@ -76,7 +76,7 @@ public class OctanePool {
         GoogleHttpClient googleHttpClient = new GoogleHttpClient(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER));
         googleHttpClient.authenticate(new SimpleUserAuthentication(
                 octaneSharedSpaceAndUsersMap.get(sharedSpace).getUser(),
-                octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword()));
+                octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_MQM_UI"));
 
         return googleHttpClient;
     }
@@ -112,7 +112,7 @@ public class OctanePool {
             Octane octane = new Octane.Builder(
                     new SimpleClientAuthentication(
                             octaneSharedSpaceAndUsersMap.get(sharedSpace).getUser(),
-                            octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword()))
+                            octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_MQM_UI"))
                     .Server(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER))
                     .sharedSpace(sharedSpace)
                     .workSpace(workspace)
