@@ -75,8 +75,8 @@ public class OctaneActionController {
 
                     OctaneService octaneService = factory.getOctaneService(id, sharedSpace, workSpace, server);
                     RepositoryConnectionAdapter repositoryConnectionAdapter = factory.getImplementation();
-                    OctaneToRepositoryService prfs = new PullRequestFetcherService(octaneService, repositoryConnectionAdapter);
-                    prfs.execute();
+                    OctaneToRepositoryService service = new PullRequestFetcherService(octaneService, repositoryConnectionAdapter);
+                    service.execute();
                 });
 
             } catch (OctanePoolException | IOException | FactoryException e) {
@@ -106,9 +106,9 @@ public class OctaneActionController {
             Factory factory = Factory.getInstance();
             OctaneService octaneService = factory.getOctaneService(id, sharedSpace, workSpace, server);
             RepositoryConnectionAdapter repositoryConnectionAdapter = factory.getImplementation();
-            BranchCreationUrlFetcherService bcfs = new BranchCreationUrlFetcherService(octaneService, repositoryConnectionAdapter);
-            bcfs.execute();
-            return new RedirectView(bcfs.getBranchCreationUrl());
+            BranchCreationUrlFetcherService service = new BranchCreationUrlFetcherService(octaneService, repositoryConnectionAdapter);
+            service.execute();
+            return new RedirectView(service.getBranchCreationUrl());
         } catch (OctanePoolException | IOException | FactoryException e) {
             LOGGER.error("Could not execute the request. \n\tMessage: " + e.getMessage() + "\n\tStacktrace: " + Arrays.toString(e.getStackTrace()));
         } catch (Exception e) {
