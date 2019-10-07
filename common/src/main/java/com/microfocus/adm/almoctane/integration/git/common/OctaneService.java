@@ -15,6 +15,7 @@ limitations under the License.
 package com.microfocus.adm.almoctane.integration.git.common;
 
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity;
 
 import java.util.List;
 
@@ -25,7 +26,6 @@ public abstract class OctaneService {
     protected String id;
 
     /**
-     *
      * @param id - the id of the entity in Octane
      */
     public OctaneService(String id) {
@@ -45,4 +45,10 @@ public abstract class OctaneService {
      * @param string - the string with which the UDF will be updated
      */
     public abstract void postToUdf(String string);
+
+    /**
+     * @return - OctaneEntity created from the Octane entity with the id this.id
+     */
+    public abstract OctaneEntity getOctaneEntity();
+
 }

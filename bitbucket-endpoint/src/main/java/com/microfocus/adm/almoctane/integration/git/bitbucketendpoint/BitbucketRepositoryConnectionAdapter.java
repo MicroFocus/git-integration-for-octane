@@ -25,8 +25,12 @@ import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity.Bit
 import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity.BitbucketPullRequestResponse;
 import com.microfocus.adm.almoctane.integration.git.common.RepositoryConnectionAdapter;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity;
 import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
-import com.microfocus.adm.almoctane.integration.git.common.exceptions.*;
+import com.microfocus.adm.almoctane.integration.git.common.exceptions.InvalidUrlRepositoryException;
+import com.microfocus.adm.almoctane.integration.git.common.exceptions.RepositoryException;
+import com.microfocus.adm.almoctane.integration.git.common.exceptions.RequestException;
+import com.microfocus.adm.almoctane.integration.git.common.exceptions.UnauthorizedUserRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +51,12 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
     public final String SERVER_HOST_NAME = "Bitbucket Server";
 
     /**
-     *
-     * @param server - the link to the Bitbucket Server e.g. http://myBitBucketServer:Port
+     * @param server                      - the link to the Bitbucket Server e.g. http://myBitBucketServer:Port
      * @param personalAuthenticationToken - the access token of the "global" user which has read (used for getting pull
      *                                    requests) and write (for creating branches) access on all the needed projects
      *                                    and repositories.
-     * @param httpTransport - the http transport to be used
-     *                      (ideally, only one http transport instance exists in the whole project)
+     * @param httpTransport               - the http transport to be used
+     *                                    (ideally, only one http transport instance exists in the whole project)
      */
     public BitbucketRepositoryConnectionAdapter(String server, String personalAuthenticationToken, HttpTransport httpTransport) {
         serverRestUrl = new BitbucketUrl(server);
@@ -103,8 +106,40 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
     }
 
     /**
+     * Returns an url to bitbucket branch creation page with name and type values already filled in
+     *
+     * @param octaneEntity - Octane entity containing the name and type used to fill in values in the creation page
+     * @return - url to bitbucket creation page
+     */
+    @Override
+    public String getCreateBranchUrl(OctaneEntity octaneEntity) {
+        String bitbucketType;
+        switch (octaneEntity.getType()) {
+            case DEFECT:
+                bitbucketType = "bug";
+                break;
+            case FEATURE:
+                bitbucketType = "story";
+                break;
+            default:
+                bitbucketType = "custom";
+
+        }
+        StringBuilder url = new StringBuilder();
+        url.append(serverRestUrl.getScheme()).append("://").append(serverRestUrl.getHost());
+        if (serverRestUrl.getPort() != -1)
+            url.append(":").append(serverRestUrl.getPort());
+        url.append("/plugins/servlet/create-branch?issueType=")
+                .append(bitbucketType)
+                .append("&issueSummary=")
+                .append(octaneEntity.getName());
+        return url.toString();
+    }
+
+    /**
      * Builds the url needed to use the Bitbucket api:
      * /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/pull-requests
+     *
      * @param commit - the commit for which to get the pull requests
      * @return the URL for making the request
      */
@@ -134,7 +169,6 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
     }
 
     /**
-     *
      * @param commit - the commit for which to get the pull requests
      * @return all the pull requests which contain the given commit
      */
