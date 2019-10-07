@@ -22,12 +22,14 @@ import com.microfocus.adm.almoctane.integration.git.common.OctaneService;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
 import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity;
 import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity.EntityType;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneUDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
@@ -39,14 +41,17 @@ import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.Octane
 public class OctaneServiceImpl extends OctaneService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OctaneServiceImpl.class);
     private OctaneRequestService octaneRequestService;
-    private String udfName;
-    private String udfLabel;
 
-    public OctaneServiceImpl(String id, OctaneRequestService octaneRequestService, String udfName, String udfLabel) {
+    private Map<OctaneUDF.Type, OctaneUDF> userDefinedFields;
+
+    public OctaneServiceImpl(
+            String id,
+            OctaneRequestService octaneRequestService,
+            Map<OctaneUDF.Type, OctaneUDF> userDefinedFields
+    ) {
         super(id);
         this.octaneRequestService = octaneRequestService;
-        this.udfName = udfName;
-        this.udfLabel = udfLabel;
+        this.userDefinedFields = userDefinedFields;
     }
 
     /**
@@ -62,6 +67,7 @@ public class OctaneServiceImpl extends OctaneService {
             OctaneCollection<EntityModel> commitsPrimitiveEntityModels = octaneRequestService.getCommits(id);
 
             commitsPrimitiveEntityModels.forEach(getCommitInfoAndAddToCommitsList(commits));
+            LOGGER.info(String.format("Got %s commits from Octane", commits.size()));
         } catch (OctaneRequestException e) {
             LOGGER.error(String.format("Exception caught during request. Message: %s. Commits will not be retrieved", e.getMessage()));
         }
@@ -72,10 +78,11 @@ public class OctaneServiceImpl extends OctaneService {
     /**
      * Updates the created udf with the given string
      *
-     * @param string - The string which will be used to update the udf.
+     * @param string  - The string which will be used to update the udf.
+     * @param udfType - The type of the UDF (i.e. pull request, branch)
      */
     @Override
-    public void postToUdf(String string) {
+    public void postToUdf(String string, OctaneUDF.Type udfType) {
         EntityModel workItem;
         try {
             workItem = octaneRequestService.getWorkItemEntityWithCommits(id);
@@ -84,9 +91,9 @@ public class OctaneServiceImpl extends OctaneService {
             return;
         }
 
-        workItem.setValue(new StringFieldModel(udfName, string));
+        workItem.setValue(new StringFieldModel(userDefinedFields.get(udfType).getName(), string));
         try {
-            octaneRequestService.updateEntityModel(id, workItem, udfName, udfLabel);
+            octaneRequestService.updateEntityModel(id, workItem, userDefinedFields.get(udfType).getName(), userDefinedFields.get(udfType).getLabel());
         } catch (OctaneRequestException e) {
             LOGGER.error(String.format("Exception caught while posting to udf. Message: %s. Udf will not be updated", e.getMessage()));
         }

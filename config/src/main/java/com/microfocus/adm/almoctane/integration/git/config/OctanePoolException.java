@@ -21,7 +21,7 @@ public class OctanePoolException extends RuntimeException {
     public OctanePoolException(String message) {
         super(message);
     }
-  
+
     public OctanePoolException(String message, Throwable cause) {
         super(message, cause);
     }

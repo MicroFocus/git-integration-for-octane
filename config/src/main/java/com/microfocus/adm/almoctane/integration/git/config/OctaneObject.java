@@ -22,9 +22,8 @@ public class OctaneObject {
     private long sharedSpace;
 
     /**
-     *
      * @param sharedSpace - the Octane shared space
-     * @param workspace - the Octane workspace
+     * @param workspace   - the Octane workspace
      */
     public OctaneObject(long sharedSpace, long workspace) {
         this.sharedSpace = sharedSpace;
@@ -32,7 +31,6 @@ public class OctaneObject {
     }
 
     /**
-     *
      * @param o - The Octane object.
      * @return  - true if the objects have the same shared space and workspace.
      *          - false otherwise.

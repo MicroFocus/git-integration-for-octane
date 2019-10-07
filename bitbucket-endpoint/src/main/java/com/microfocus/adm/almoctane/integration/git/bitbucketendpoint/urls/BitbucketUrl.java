@@ -12,7 +12,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-package com.microfocus.adm.almoctane.integration.git.bitbucketendpoint;
+package com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.util.Key;
@@ -22,18 +22,16 @@ import com.google.api.client.util.Key;
  */
 public class BitbucketUrl extends GenericUrl {
     @Key
-    private int start;
+    protected int start;
 
     /**
-     *
      * @param server - the base Url for the Bitbucket server
      */
     public BitbucketUrl(String server) {
-        super(server+ "/rest/api/latest");
+        super(server + "/rest/api/latest");
     }
 
     /**
-     *
      * @return - the Bitbucket page from which to get the rest of the request response
      */
     public int getStart() {
@@ -41,7 +39,6 @@ public class BitbucketUrl extends GenericUrl {
     }
 
     /**
-     *
      * @param start - the Bitbucket page from which to get the rest of the request response
      */
     public void setStart(int start) {
@@ -49,7 +46,6 @@ public class BitbucketUrl extends GenericUrl {
     }
 
     /**
-     *
      * @return - clone of the current object
      */
     @Override

@@ -22,8 +22,7 @@ public abstract class OctaneToRepositoryService {
     protected RepositoryConnectionAdapter repositoryConnectionAdapter;
 
     /**
-     *
-     * @param octaneService - instance of an object which can perform Octane operations
+     * @param octaneService               - instance of an object which can perform Octane operations
      * @param repositoryConnectionAdapter - instance of an object which can perform actions on a repository
      */
     public OctaneToRepositoryService(OctaneService octaneService, RepositoryConnectionAdapter repositoryConnectionAdapter) {

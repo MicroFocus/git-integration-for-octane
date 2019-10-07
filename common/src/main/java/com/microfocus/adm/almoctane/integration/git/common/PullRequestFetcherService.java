@@ -14,14 +14,14 @@ limitations under the License.
 
 package com.microfocus.adm.almoctane.integration.git.common;
 
-import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneUDF;
 import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.SummarizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class used to fetch the pull requests from the repository into Octane
@@ -44,30 +44,15 @@ public class PullRequestFetcherService extends OctaneToRepositoryService {
      */
     @Override
     public void execute() {
-        List<Commit> commits = octaneService.getCommits();
-
-        LOGGER.info("Got " + commits.size() + " commits from Octane.");
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
-        Date date = new Date(System.currentTimeMillis());
-
-
-        StringBuilder responseHtml = new StringBuilder("<html><body><p><b>Last updated on: ");
-        //add the current time as the time of the last update
-        responseHtml.append(formatter.format(date));
-        responseHtml.append("</b></p>");
+        StringBuilder responseHtml = CommonUtils.getLastModifiedHtmlString();
 
         try {
-            List<PullRequest> pullRequests = repositoryConnectionAdapter.getPullRequestsFromCommits(commits);
-            LOGGER.info("Got " + pullRequests.size() + " pull requests from the Repository.");
+            List<PullRequest> pullRequests = repositoryConnectionAdapter.getPullRequestsFromCommits(octaneService.getCommits());
 
             //put on separate lines a link to each pull request
-            pullRequests.forEach(pr -> responseHtml.append("<p><a href=\"")
-                    .append(pr.getPullRequestLink())
-                    .append("\">")
-                    .append(pr.getPullRequestName())
-                    .append("</a> - ").append(pr.getPullRequestState())
-                    .append("</p>"));
+            pullRequests.forEach(pr -> responseHtml.append(
+                    String.format("<p><a href=\"%s\"> %s</a> - %s</p>", pr.getPullRequestLink(), pr.getPullRequestName(), pr.getPullRequestState())));
+
         } catch (SummarizedException e) {
             LOGGER.error("Exception while getting the pull requests from the repository\n\t\t Additional information: " +
                     e.getMessage() + "Stacktrace: " + Arrays.toString(e.getStackTrace()));
@@ -80,7 +65,7 @@ public class PullRequestFetcherService extends OctaneToRepositoryService {
 
         } finally {
             responseHtml.append("</body></html>");
-            octaneService.postToUdf(responseHtml.toString());
+            octaneService.postToUdf(responseHtml.toString(), OctaneUDF.Type.PULL_REQUEST);
         }
     }
 }

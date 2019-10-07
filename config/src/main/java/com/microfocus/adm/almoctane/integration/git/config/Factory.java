@@ -18,11 +18,14 @@ import com.google.api.client.http.HttpTransport;
 import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.BitbucketRepositoryConnectionAdapter;
 import com.microfocus.adm.almoctane.integration.git.common.OctaneService;
 import com.microfocus.adm.almoctane.integration.git.common.RepositoryConnectionAdapter;
+import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneUDF;
 import com.microfocus.adm.almoctane.integration.git.config.httpclient.HttpTransporter;
 import com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneRequestService;
 import com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneServiceImpl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -30,8 +33,7 @@ import java.util.Properties;
  */
 public class Factory {
     private static final String propertyFileName = "configuration.properties";
-    private static String udfName;
-    private static String udfLabel;
+    private Map<OctaneUDF.Type, OctaneUDF> userDefinedFields;
 
     private static Factory factory;
 
@@ -48,20 +50,25 @@ public class Factory {
     private Factory() throws IOException {
         properties = CommonUtils.loadProperties(propertyFileName);
 
-        udfName = properties.getProperty(PropertiesFileKeys.OCTANE_UDF_NAME);
-        udfLabel = properties.getProperty(PropertiesFileKeys.OCTANE_UDF_LABEL);
+        userDefinedFields = new HashMap<>();
+
+        userDefinedFields.put(OctaneUDF.Type.PULL_REQUEST, new OctaneUDF(properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_NAME),
+                properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_LABEL), OctaneUDF.Type.PULL_REQUEST));
+
+        userDefinedFields.put(OctaneUDF.Type.BRANCH, new OctaneUDF(properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_NAME),
+                properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_NAME), OctaneUDF.Type.BRANCH));
 
         String repoHost, server, access;
         repoHost = properties.getProperty(PropertiesFileKeys.REPOSITORY_HOST);
 
         switch (repoHost) {
             case PropertiesFileKeys.BITBUCKET_SERVER:
-                String urlKey =repoHost + PropertiesFileKeys._URL;
-                String accessKey =repoHost + PropertiesFileKeys._ACCESS;
+                String urlKey = repoHost + PropertiesFileKeys._URL;
+                String accessKey = repoHost + PropertiesFileKeys._ACCESS;
                 server = properties.getProperty(urlKey);
                 access = properties.getProperty(accessKey);
                 if (server.equals("") || access.equals(""))
-                    throw new FactoryException(repoHost,urlKey,accessKey);
+                    throw new FactoryException(repoHost, urlKey, accessKey);
                 HttpTransport httpTransport = HttpTransporter.getInstance().getHttpTransport();
                 implementation = new BitbucketRepositoryConnectionAdapter(server, access, httpTransport);
                 break;
@@ -96,17 +103,17 @@ public class Factory {
     /**
      * Returns an OctaneService.
      *
-     * @param id - The id of the entity for which the user made a request. (i.e. defect with id 1001)
+     * @param id          - The id of the entity for which the user made a request. (i.e. defect with id 1001)
      * @param sharedSpace - The shared space id.
-     * @param workspace - The workspace id.
-     * @param url - The URL from where the request was fired.
+     * @param workspace   - The workspace id.
+     * @param url         - The URL from where the request was fired.
      * @return - An OctaneService.
      */
     public OctaneService getOctaneService(String id, long sharedSpace, long workspace, String url) {
         OctaneRequestService octaneRequestService = new OctaneRequestService(OctanePool.getPool().getOctane(sharedSpace, workspace, url),
                 OctanePool.getPool().getOctaneHttpClient(sharedSpace, url), url, sharedSpace, workspace);
 
-        return new OctaneServiceImpl(id, octaneRequestService, udfName, udfLabel);
+        return new OctaneServiceImpl(id, octaneRequestService, userDefinedFields);
     }
 
     /**

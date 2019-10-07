@@ -11,7 +11,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-
 package com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity;
 
 import com.google.api.client.util.Key;
@@ -20,12 +19,12 @@ import java.util.Set;
 
 /**
  * Class used to describe the Bitbucket response received by calling the following Bitbucket api:
- * /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/pull-requests.
+ * /rest/branch-utils/1.0/projects/{projectKey}/repos/{repositorySlug}/branches/info/{commitId}.
  */
-public class BitbucketPullRequestResponse extends BitbucketResponse {
+public class BitbucketBranchResponse extends BitbucketResponse {
 
-    @Key("values")//the value field in the response contains the pull requests
-    private Set<BitbucketPullRequest> pullRequests;
+    @Key("values") //the value field in the response contains the Bitbucket branches
+    private Set<BitbucketBranch> branches;
 
     /**
      * @return  - true if the response was the last page
@@ -36,14 +35,14 @@ public class BitbucketPullRequestResponse extends BitbucketResponse {
     }
 
     /**
-     * @return - set of pull requests received from Bitbucket
+     * @return - Set of branches received from Bitbucket
      */
-    public Set<BitbucketPullRequest> getPullRequests() {
-        return pullRequests;
+    public Set<BitbucketBranch> getBranches() {
+        return branches;
     }
 
     /**
-     * @return - the Bitbucket page from which to get the rest of the request response
+     * @return - The Bitbucket page from which to get the rest of the request response
      */
     public int getNextPageStart() {
         return nextPageStart;
