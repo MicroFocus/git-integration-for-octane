@@ -17,14 +17,16 @@ package com.microfocus.adm.almoctane.integration.git.common.exceptions;
 /**
  * Exception used when there is a problem with a request
  */
-public class RequestException extends SummarizedException {
+public class RequestToRepositoryException extends RepositoryException {
 
     /**
      * @param message - message of the exception
      * @param cause   - cause of the exception
+     * @param repoHostName - the name of the repository host
+     * @param repoHostUrl  - the URL of the repository
      */
-    public RequestException(String message, Throwable cause) {
-        super(message, cause);
+    public RequestToRepositoryException(String message, Throwable cause, String repoHostName, String repoHostUrl) {
+        super(message, cause, repoHostName, repoHostUrl);
         lineList.add(0, "Failed to make the request!");
     }
 

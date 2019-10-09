@@ -54,7 +54,7 @@ public class PullRequestFetcherService extends OctaneToRepositoryService {
                     String.format("<p><a href=\"%s\"> %s</a> - %s</p>", pr.getPullRequestLink(), pr.getPullRequestName(), pr.getPullRequestState())));
 
         } catch (SummarizedException e) {
-            LOGGER.error("Exception while getting the pull requests from the repository\n\t\t Additional information: " +
+            LOGGER.error("Exception while getting the pull requests from the repository\n\t\t" +
                     e.getMessage() + "Stacktrace: " + Arrays.toString(e.getStackTrace()));
 
             //add a summarized error message to the response

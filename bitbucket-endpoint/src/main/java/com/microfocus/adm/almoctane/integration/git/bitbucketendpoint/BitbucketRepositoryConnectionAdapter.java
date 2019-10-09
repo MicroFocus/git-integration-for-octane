@@ -14,7 +14,10 @@ limitations under the License.
 
 package com.microfocus.adm.almoctane.integration.git.bitbucketendpoint;
 
-import com.google.api.client.http.*;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponseException;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -22,8 +25,7 @@ import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity.Bit
 import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity.BitbucketBranchResponse;
 import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity.BitbucketPullRequest;
 import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity.BitbucketPullRequestResponse;
-import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls.BitbucketBranchUtilsUrl;
-import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls.BitbucketUrl;
+import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls.BitbucketRepositoryUrl;
 import com.microfocus.adm.almoctane.integration.git.common.RepositoryConnectionAdapter;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
@@ -31,13 +33,15 @@ import com.microfocus.adm.almoctane.integration.git.common.entities.OctaneEntity
 import com.microfocus.adm.almoctane.integration.git.common.entities.PullRequest;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.InvalidUrlRepositoryException;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.RepositoryException;
-import com.microfocus.adm.almoctane.integration.git.common.exceptions.RequestException;
+import com.microfocus.adm.almoctane.integration.git.common.exceptions.RequestToRepositoryException;
 import com.microfocus.adm.almoctane.integration.git.common.exceptions.UnauthorizedUserRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+
+import static com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls.BitbucketUrl.SERVER_HOST_NAME;
 
 /**
  * Class used to perform calls to a single Bitbucket server
@@ -48,21 +52,17 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
     private HttpTransport httpTransport;
     private JsonFactory jsonFactory = new JacksonFactory();
     private String personalAuthenticationToken;
-    private BitbucketUrl serverRestUrl;
-    private BitbucketBranchUtilsUrl serverBranchUtilsRestUrl;
-    public final String SERVER_HOST_NAME = "Bitbucket Server";
+    private String serverUrlString;
 
     /**
      * @param server                      - the link to the Bitbucket Server e.g. http://myBitBucketServer:Port
-     * @param personalAuthenticationToken - the access token of the "global" user which has read (used for getting pull
-     *                                    requests) and write (for creating branches) access on all the needed projects
-     *                                    and repositories.
+     * @param personalAuthenticationToken - the access token of the "global" user which has read access on all the
+     *                                    needed projects and repositories.
      * @param httpTransport               - the http transport to be used
      *                                    (ideally, only one http transport instance exists in the whole project)
      */
     public BitbucketRepositoryConnectionAdapter(String server, String personalAuthenticationToken, HttpTransport httpTransport) {
-        serverRestUrl = new BitbucketUrl(server);
-        serverBranchUtilsRestUrl = new BitbucketBranchUtilsUrl(server);
+        serverUrlString = server;
         this.httpTransport = httpTransport;
         this.personalAuthenticationToken = "Bearer " + personalAuthenticationToken;
     }
@@ -90,11 +90,11 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
                         if (!(e instanceof InvalidUrlRepositoryException))
                             throw e;
 
-                        LOGGER.warn("Continuing the retrieval of other commits, but an InvalidUrlRepositoryException " +
-                                "occurred while using an url to retrieve the pull requests related to the commit " +
-                                "with the hash " + commit.getHash() + " and cloned from the repository " +
-                                commit.getRepoLink() + "\n\t\tException message: " + e.getMessage() +
-                                "\n\t\tStacktrace: " + Arrays.toString(e.getStackTrace()));
+                        LOGGER.warn("Continuing the retrieval of pull requests from other commits, but an " +
+                                "InvalidUrlRepositoryException occurred while using an url to retrieve the pull " +
+                                "requests related to the commit with the hash " + commit.getHash() + " and cloned" +
+                                " from the repository " + commit.getRepoLink() + "\n\t\tException message: " +
+                                e.getMessage() + "\n\t\tStacktrace: " + Arrays.toString(e.getStackTrace()));
                     }
                 }
         );
@@ -127,15 +127,11 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
                 bitbucketType = "custom";
 
         }
-        StringBuilder url = new StringBuilder();
-        url.append(serverRestUrl.getScheme()).append("://").append(serverRestUrl.getHost());
-        if (serverRestUrl.getPort() != -1)
-            url.append(":").append(serverRestUrl.getPort());
-        url.append("/plugins/servlet/create-branch?issueType=")
-                .append(bitbucketType)
-                .append("&issueSummary=")
-                .append(octaneEntity.getName());
-        return url.toString();
+        return serverUrlString +
+                "/plugins/servlet/create-branch?issueType=" +
+                bitbucketType +
+                "&issueSummary=" +
+                octaneEntity.getName();
     }
 
     /**
@@ -158,10 +154,10 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
                         if (!(e instanceof InvalidUrlRepositoryException))
                             throw e;
 
-                        LOGGER.warn("Continuing the retrieval of other commits, but an InvalidUrlRepositoryException " +
-                                "occurred while using an url to retrieve the branches related to the commit " +
-                                "with the hash " + commit.getHash() + " and cloned from the repository " +
-                                commit.getRepoLink() + "\n\t\tException message: " + e.getMessage() +
+                        LOGGER.warn("Continuing the retrieval of branch information from other commits, but an " +
+                                "InvalidUrlRepositoryException occurred while using an url to retrieve the branches " +
+                                "related to the commit with the hash " + commit.getHash() + " and cloned from the " +
+                                "repository " + commit.getRepoLink() + "\n\t\tException message: " + e.getMessage() +
                                 "\n\t\tStacktrace: " + Arrays.toString(e.getStackTrace()));
                     }
                 }
@@ -175,60 +171,12 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
     }
 
     /**
-     * Builds the url needed to use the Bitbucket api:
-     * /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/pull-requests
-     *
-     * @param commit - the commit for which to get the pull requests
-     * @return the URL for making the request
-     */
-    public BitbucketUrl getPullRequestsUrl(Commit commit) {
-        try {
-            // at 0, http/https, 1 is empty, 2 is server url, 3 is scm, 4 is project, 5 is repo
-            String[] link = commit.getRepoLink().replace(".git", "").split("/");
-            BitbucketUrl pullRequestRequestUrl = serverRestUrl.clone();
-
-            pullRequestRequestUrl.appendRawPath(String.format("/projects/%s/repos/%s/commits/%s/pull-requests", link[4], link[5], commit.getHash()));
-
-            return pullRequestRequestUrl;
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidUrlRepositoryException("Commit has unexpected url structure. Got " + commit.getRepoLink() +
-                    " and was expecting the following structure: http(s)://<serverUrl>/scm/<projectSlug>/<repoSlug>.git.\n\t\t" +
-                    "Additional information: " + e.getMessage(),
-                    e, SERVER_HOST_NAME, commit.getRepoLink(), serverRestUrl.getHost());
-        }
-    }
-
-    /**
-     * Builds the url needed to use the Bitbucket api:
-     * /rest/branch-utils/1.0/projects/{projectKey}/repos/{repositorySlug}/branches/info/{commitId}
-     *
-     * @param commit - The commit for which to get the branches
-     * @return - The URL for making the request
-     */
-    public BitbucketBranchUtilsUrl getBranchUtilsUrl(Commit commit) {
-        try {
-            // at 0, http/https, 1 is empty, 2 is server url, 3 is scm, 4 is project, 5 is repo
-            String[] link = commit.getRepoLink().replace(".git", "").split("/");
-
-            BitbucketBranchUtilsUrl branchUtilsURL = serverBranchUtilsRestUrl.clone();
-            branchUtilsURL.appendRawPath(String.format("/projects/%s/repos/%s/branches/info/%s", link[4], link[5], commit.getHash()));
-
-            return branchUtilsURL;
-        } catch (IndexOutOfBoundsException e) {
-            throw new InvalidUrlRepositoryException("Commit has unexpected url structure. Got " + commit.getRepoLink() +
-                    " and was expecting the following structure: http(s)://<serverUrl>/scm/<projectSlug>/<repoSlug>.git.\n\t\t" +
-                    "Additional information: " + e.getMessage(),
-                    e, SERVER_HOST_NAME, commit.getRepoLink(), serverRestUrl.getHost());
-        }
-    }
-
-    /**
      * @param commit - the commit for which to get the pull requests
      * @return all the pull requests which contain the given commit
      */
     private Set<BitbucketPullRequest> getPullRequestsFromCommit(Commit commit) {
-
-        BitbucketUrl pullRequestRequestUrl = getPullRequestsUrl(commit);
+        BitbucketRepositoryUrl pullRequestRequestUrl = new BitbucketRepositoryUrl(serverUrlString, commit.getRepoLink());
+        pullRequestRequestUrl.setPullRequestsForCommitUrl(commit.getHash());
 
         Set<BitbucketPullRequest> pullRequests = new HashSet<>();
 
@@ -248,9 +196,11 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
         } catch (HttpResponseException e) {
             handleHttpResponseException(pullRequestRequestUrl, e);
         } catch (IOException e) {
-            throw new RequestException("An exception occurred while connecting to the Bitbucket server\n\t\t" +
+            throw new RequestToRepositoryException("An exception occurred while connecting to the Bitbucket server\n\t\t" +
                     "Additional information: " + e.getMessage(),
-                    e);
+                    e,
+                    SERVER_HOST_NAME,
+                    serverUrlString);
         }
 
         return pullRequests;
@@ -261,8 +211,8 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
      * @return - All the branches which contain the given commit
      */
     private Set<BitbucketBranch> getBranchesFromCommit(Commit commit) {
-
-        BitbucketBranchUtilsUrl branchUtilsUrl = getBranchUtilsUrl(commit);
+        BitbucketRepositoryUrl repoUrl = new BitbucketRepositoryUrl(serverUrlString, commit.getRepoLink());
+        repoUrl.setBranchUtilsUrl(commit.getHash());
 
         Set<BitbucketBranch> branches = new HashSet<>();
 
@@ -272,25 +222,24 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
         BitbucketBranchResponse bitbucketBranchResponse;
         try {
             do {
-                HttpRequest httpRequest = httpRequestFactory.buildGetRequest(branchUtilsUrl);
+                HttpRequest httpRequest = httpRequestFactory.buildGetRequest(repoUrl);
                 httpRequest.getHeaders().setAuthorization(personalAuthenticationToken);
                 bitbucketBranchResponse = httpRequest.execute().parseAs(BitbucketBranchResponse.class);
                 branches.addAll(bitbucketBranchResponse.getBranches());
-                branches.forEach(b -> {
-                    String[] link = commit.getRepoLink().replace(".git", "").split("/");
-
-                    b.setRepositoryName(link[5]);
-                    b.setBrowseCodeOnBranchUrl(link[0].concat("//").concat(link[2]), link[4]);
+                branches.forEach(branch -> {
+                    branch.setRepositoryName(repoUrl.getRepositorySlug());
+                    String branchSourceCodeUrl = repoUrl.getBranchSourceCodeUrl(branch.getBranchId());
+                    branch.setBranchSourceCodeUrl(branchSourceCodeUrl);
                 });
-                branchUtilsUrl.setStart(bitbucketBranchResponse.getNextPageStart());
+                repoUrl.setStart(bitbucketBranchResponse.getNextPageStart());
             }
             while (!bitbucketBranchResponse.isLastPage());
         } catch (HttpResponseException e) {
-            handleHttpResponseException(branchUtilsUrl, e);
+            handleHttpResponseException(repoUrl, e);
         } catch (IOException e) {
-            throw new RequestException("An exception occurred while connecting to the Bitbucket server\n\t\t" +
+            throw new RequestToRepositoryException("An exception occurred while connecting to the Bitbucket server\n\t\t" +
                     "Additional information: " + e.getMessage(),
-                    e);
+                    e, SERVER_HOST_NAME, serverUrlString);
         }
 
         return branches;
@@ -300,22 +249,23 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
      * @param url - The Bitbucket URL.
      * @param e   - The HttpResponse exception.
      */
-    private void handleHttpResponseException(GenericUrl url, HttpResponseException e) {
+    private void handleHttpResponseException(BitbucketRepositoryUrl url, HttpResponseException e) {
         switch (e.getStatusCode()) {
             case 401:
+            case 403:
                 //do not put actual key in the logs
                 throw new UnauthorizedUserRepositoryException("The Personal Access Token key used did not have " +
                         "enough permissions to get the pull requests.\n\t\tAdditional information: " + e.getMessage(),
-                        e, SERVER_HOST_NAME, serverRestUrl.getHost());
+                        e, SERVER_HOST_NAME, serverUrlString);
             case 404:
-                String fullUrl = url.getHost() + url.getRawPath();
+                String fullUrl = url.toString();
                 throw new InvalidUrlRepositoryException("The url " + fullUrl + " could not be found in the " +
-                        serverRestUrl.getHost() + " Bitbucket server\n\t\tAdditional information: " + e.getMessage(),
-                        e, SERVER_HOST_NAME, fullUrl, serverRestUrl.getHost());
+                        serverUrlString + " Bitbucket server\n\t\tAdditional information: " + e.getMessage(),
+                        e, SERVER_HOST_NAME, fullUrl, serverUrlString);
             default:
                 throw new RepositoryException("The response from the Bitbucket server was an error message\n\t\t" +
                         "Additional information: " + e.getMessage(),
-                        e, SERVER_HOST_NAME, serverRestUrl.getHost());
+                        e, SERVER_HOST_NAME, serverUrlString);
         }
     }
 }

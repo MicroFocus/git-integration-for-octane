@@ -27,5 +27,6 @@ public class UnauthorizedUserRepositoryException extends RepositoryException {
      */
     public UnauthorizedUserRepositoryException(String message, Throwable cause, String repoHostName, String repoHostUrl) {
         super(message, cause, repoHostName, repoHostUrl);
+        lineList.add("Invalid user credentials or insufficient permissions for the " + repoHostName + " user!");
     }
 }

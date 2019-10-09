@@ -21,15 +21,20 @@ import com.google.api.client.util.Key;
  * Class used for creating the base URL to make requests to the Bitbucket server
  */
 public class BitbucketUrl extends GenericUrl {
+
+    public final static String SERVER_HOST_NAME = "Bitbucket Server";
+
     @Key
-    protected int start;
+    private int start;
+
 
     /**
-     * @param server - the base Url for the Bitbucket server
+     * @param serverUrl - the base Url for the Bitbucket server
      */
-    public BitbucketUrl(String server) {
-        super(server + "/rest/api/latest");
+    public BitbucketUrl(String serverUrl) {
+        super(serverUrl);
     }
+
 
     /**
      * @return - the Bitbucket page from which to get the rest of the request response
@@ -50,8 +55,27 @@ public class BitbucketUrl extends GenericUrl {
      */
     @Override
     public BitbucketUrl clone() {
-        BitbucketUrl clone = (BitbucketUrl) super.clone();
-        clone.start = this.start;
-        return clone;
+        return (BitbucketUrl) super.clone();
     }
+
+    /**
+     * @return - string containing both the base host and the port if it is not -1
+     */
+    public String getHostWithPort() {
+        StringBuilder url = new StringBuilder();
+        url.append(getHost());
+        if (getPort() != -1)
+            url.append(":").append(getPort());
+        return url.toString();
+    }
+
+    /**
+     * @return - scheme + host + port
+     */
+    public String getServerBaseUrl() {
+
+        return getScheme() + "://" + getHostWithPort();
+    }
+
+
 }
