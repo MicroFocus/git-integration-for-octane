@@ -3,8 +3,7 @@
 ### Introduction
 
 This tool can create a new branch from an Octane work item (epic, feature, user story, quality story, defect). 
-Using the commits of a work item, it can also fetch pull requests and branch information related to those commits from 
-git repositories into Octane.
+Moreover, pull request and branch information can be fetched, from a git repository, based on work items' commits.
 
 At the moment the only supported git repository is Bitbucket Server.
 
