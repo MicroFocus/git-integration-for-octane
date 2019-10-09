@@ -100,7 +100,7 @@ public class OctaneServiceImpl extends OctaneService {
     }
 
     /**
-     * Converts the entity subtype received form octane into EntityType
+     * Converts the entity subtype received form Octane into EntityType
      *
      * @param octaneType - the subtype of an entity
      * @return - converted type
@@ -129,7 +129,8 @@ public class OctaneServiceImpl extends OctaneService {
             String name = octaneEntity.getValue(NAME).getValue().toString();
             String octaneType = octaneEntity.getValue(SUBTYPE).getValue().toString();
             EntityType type = convertEntityType(octaneType);
-            LOGGER.info("Got the name " + name + " and type " + octaneType + " for the entity with id: " + id + ". Type was converted to " + type);
+            LOGGER.info("Got the name \"" + name + "\" and type \"" + octaneType + "\" for the entity with id: " + id +
+                    ". Type was converted to \"" + type + "\"");
             return new OctaneEntity(name, type);
         } catch (OctaneRequestException | OctanePartialException e) {
             LOGGER.error("Could not get name and entity subtype from octane! Message: "+e.getMessage()+"\n" +

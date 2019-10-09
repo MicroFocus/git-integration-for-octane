@@ -54,7 +54,8 @@ public class BranchInformationFetcherService extends OctaneToRepositoryService {
                     String.format("<p><a href=\"%s\"> %s</a> - %s</p>", br.geBranchSourceCodeUrl(), br.getBranchName(), br.getRepositoryName())));
 
         } catch (SummarizedException e) {
-            LOGGER.error(String.format("Exception while getting the branches from the repository\n\t\t Additional information: %s Stacktrace:\n %s",
+            LOGGER.error(String.format("Exception while getting the branches from the repository\n\t\t%s" +
+                            "\n\t\tStacktrace: %s",
                     e.getMessage(), Arrays.toString(e.getStackTrace())));
 
             //add a summarized error message to the response

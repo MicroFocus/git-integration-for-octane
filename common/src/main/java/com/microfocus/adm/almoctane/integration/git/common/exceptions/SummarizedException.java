@@ -40,9 +40,9 @@ public abstract class SummarizedException extends RuntimeException {
     @Override
     public String getMessage() {
         StringBuilder message = new StringBuilder();
+        message.append(super.getMessage()).append("\n\t\t");
         List<String> lineList = getSummary();
-        lineList.forEach(line -> message.append(line).append("\n"));
-        message.append(super.getMessage());
+        lineList.forEach(line -> message.append(line).append("\n\t\t"));
         return message.toString();
     }
 

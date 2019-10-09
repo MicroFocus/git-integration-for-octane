@@ -14,7 +14,6 @@ limitations under the License.
 package com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.entity;
 
 import com.google.api.client.util.Key;
-import com.microfocus.adm.almoctane.integration.git.bitbucketendpoint.urls.BitbucketBrowseCodeUrl;
 import com.microfocus.adm.almoctane.integration.git.common.entities.Branch;
 
 /**
@@ -50,14 +49,10 @@ public class BitbucketBranch implements Branch {
     /**
      * Sets the branch browse URL.
      *
-     * @param server      - The Bitbucket server.
-     * @param projectName - The Bitbucket projectName name.
+     * @param url - full url of the branch source code page
      */
-    public void setBrowseCodeOnBranchUrl(String server, String projectName) {
-        BitbucketBrowseCodeUrl url = new BitbucketBrowseCodeUrl(server);
-        url.setRawPath(String.format("/projects/%s/repos/%s/browse", projectName, repositoryName));
-
-        this.branchSourceCodeUrl = url.setBranch(this).toString();
+    public void setBranchSourceCodeUrl(String url) {
+        this.branchSourceCodeUrl = url;
     }
 
     /**
