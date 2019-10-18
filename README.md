@@ -7,14 +7,6 @@ Moreover, pull request and branch information can be fetched, from a git reposit
 
 At the moment the only supported git repository is Bitbucket Server.
 
-### What's New
-* v1.1
-    * Branches with the name of the work item can be created.
-    * Information about branches can be imported based on the commits of the work item. The information consist of:
-        * branch name
-        * link to the source code of the branch
-        * name of the repository containing the branch
-
 ### Limitations
 
 *	This solution can be used for one instance of Octane with multiple shared spaces and workspaces. In case you desire 
@@ -47,10 +39,20 @@ To generate the war please execute the ```mvn package``` goal on the root module
 server you are free to do so. 
 
 After generating the war you can read the Deployment section from the user guide, which you find in the 
-[documentation](docs/Git_Integration_For_Octane_Installation_Guide-v1.1.pdf).
+[documentation](docs/Git_Integration_For_Octane_Installation_Guide-v1.1.1.pdf).
 
 ### Documentation
 
 In case of any troubles, please read the user guide, found in the 
-[documentation](/docs/Git_Integration_For_Octane_User_Guide-v1.1.pdf).
+[documentation](/docs/Git_Integration_For_Octane_User_Guide-v1.1.1.pdf).
 
+### What's New
+* v1.1.1
+    * Branches are created with a name having the following pattern: <octane_entity_id>-<octane_entity_name>
+    * Created the "logs.location" property to the configuration file. This allows the user to configure the location for the log files.
+* v1.1
+    * Branches with the name of the work item can be created.
+    * Information about branches can be imported based on the commits of the work item. The information consist of:
+        * branch name
+        * link to the source code of the branch
+        * name of the repository containing the branch

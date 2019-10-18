@@ -62,7 +62,7 @@ public class MainApplication extends SpringBootServletInitializer {
                     .getParentFile()
                     .getParent();
 
-            System.setProperty("git-integration-for-octane-log-folder", installationFolder);
+            System.setProperty("git-integration-for-octane-log-folder", "logs");
             LoggerFactory.getLogger(MainApplication.class).info(String.format("Installation folder: %s. The logs can be found in  the octane_utility_logs folder", installationFolder));
         }
     }
