@@ -8,7 +8,7 @@
         <version>2.1.7.RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.1</version>
+    <version>1.11</version>
     <packaging>war</packaging>
 
     <artifactId>api</artifactId>
@@ -23,7 +23,7 @@
 
     <properties>
         <javax.servlet.version>3.1.0</javax.servlet.version>
-        <git-integration-for-octane.project.version>1.1</git-integration-for-octane.project.version>
+        <git-integration-for-octane.project.version>1.11</git-integration-for-octane.project.version>
         <git-integration-for-octane.war.name>git-integration-for-octane-</git-integration-for-octane.war.name>
     </properties>
 

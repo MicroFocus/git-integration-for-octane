@@ -131,6 +131,8 @@ public class BitbucketRepositoryConnectionAdapter implements RepositoryConnectio
                 "/plugins/servlet/create-branch?issueType=" +
                 bitbucketType +
                 "&issueSummary=" +
+                octaneEntity.getId() +
+                "-" +
                 octaneEntity.getName();
     }
 
