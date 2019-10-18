@@ -85,6 +85,7 @@ public class OctaneServiceImpl extends OctaneService {
     public void postToUdf(String string, OctaneUDF.Type udfType) {
         EntityModel workItem;
         try {
+            //get entity again in case it was updated during the request
             workItem = octaneRequestService.getWorkItemEntityWithCommits(id);
         } catch (OctaneRequestException e) {
             LOGGER.error(String.format("Cannot post to udf. %s", e.getMessage()));
