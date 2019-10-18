@@ -85,6 +85,7 @@ public class OctaneServiceImpl extends OctaneService {
     public void postToUdf(String string, OctaneUDF.Type udfType) {
         EntityModel workItem;
         try {
+            //get entity again in case it was updated during the request
             workItem = octaneRequestService.getWorkItemEntityWithCommits(id);
         } catch (OctaneRequestException e) {
             LOGGER.error(String.format("Cannot post to udf. %s", e.getMessage()));
@@ -123,7 +124,6 @@ public class OctaneServiceImpl extends OctaneService {
      */
     @Override
     public OctaneEntity getOctaneEntity() {
-
         try {
             EntityModel octaneEntity = octaneRequestService.getWorkItemEntityWithName(id);
             String name = octaneEntity.getValue(NAME).getValue().toString();
@@ -131,13 +131,12 @@ public class OctaneServiceImpl extends OctaneService {
             EntityType type = convertEntityType(octaneType);
             LOGGER.info("Got the name \"" + name + "\" and type \"" + octaneType + "\" for the entity with id: " + id +
                     ". Type was converted to \"" + type + "\"");
-            return new OctaneEntity(name, type);
+            return new OctaneEntity(octaneEntity.getId(), name, type);
         } catch (OctaneRequestException | OctanePartialException e) {
-            LOGGER.error("Could not get name and entity subtype from octane! Message: "+e.getMessage()+"\n" +
-                    "Stacktrace: "+ Arrays.toString(e.getStackTrace()) +"\nUsing default values for OctaneEntity.");
+            LOGGER.error("Could not get name and entity subtype from octane! Message: " + e.getMessage() + "\n" +
+                    "Stacktrace: " + Arrays.toString(e.getStackTrace()) + "\nUsing default values for OctaneEntity.");
             return new OctaneEntity();
         }
-
     }
 
     /**

@@ -14,7 +14,7 @@ limitations under the License.
 
 package com.microfocus.adm.almoctane.integration.git.api;
 
-import org.slf4j.Logger;
+import com.microfocus.adm.almoctane.integration.git.config.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,25 +22,26 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.IOException;
+import java.util.Properties;
 
 @SpringBootApplication
 public class MainApplication extends SpringBootServletInitializer {
 
     static {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
-        System.setProperty("start.date.time", dateFormat.format(new Date()));
+        Properties configurationFileProperties;
 
-        String installationFolder = new File(MainApplication.class
-                .getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getParentFile()
-                .getParent();
+        try {
+            configurationFileProperties = CommonUtils.loadProperties("configuration.properties");
+        } catch (IOException e) {
+            throw new RuntimeException("Please provide a configuration file in the conf folder!");
+        }
 
-        System.setProperty("catalina.base", installationFolder);
+        initLogs(configurationFileProperties);
+    }
 
-        final Logger LOGGER = LoggerFactory.getLogger(MainApplication.class);
-        LOGGER.info(String.format("Installation folder: %s", installationFolder));
+    public static void main(String[] args) {
+        SpringApplication.run(MainApplication.class, args);
     }
 
     @Override
@@ -48,7 +49,21 @@ public class MainApplication extends SpringBootServletInitializer {
         return application.sources(MainApplication.class);
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(MainApplication.class, args);
+    private static void initLogs(Properties configurationFileProperties) {
+        String logsLocation = configurationFileProperties.getProperty("logs.location");
+
+        if (logsLocation != null) {
+            System.setProperty("git-integration-for-octane-log-folder", logsLocation);
+            LoggerFactory.getLogger(MainApplication.class).info(String.format("Logs location: %s\\octane_utility_logs folder", logsLocation));
+        } else {
+
+            String installationFolder = new File(MainApplication.class
+                    .getProtectionDomain().getCodeSource().getLocation().getPath())
+                    .getParentFile()
+                    .getParent();
+
+            System.setProperty("git-integration-for-octane-log-folder", "logs");
+            LoggerFactory.getLogger(MainApplication.class).info(String.format("Installation folder: %s. The logs can be found in  the octane_utility_logs folder", installationFolder));
+        }
     }
 }

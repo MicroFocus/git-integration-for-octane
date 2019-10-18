@@ -20,12 +20,14 @@ package com.microfocus.adm.almoctane.integration.git.common.entities;
 public class OctaneEntity {
     private EntityType type;
     private String name;
+    private String id;
 
     /**
      * @param name - name of the entity (equivalent of the name field in Octane)
      * @param type - type of the entity (equivalent of the subtype field in Octane)
      */
-    public OctaneEntity(String name, EntityType type) {
+    public OctaneEntity(String id, String name, EntityType type) {
+        this.id = id;
         this.type = type;
         this.name = name;
     }
@@ -35,6 +37,7 @@ public class OctaneEntity {
      */
     public OctaneEntity() {
         this.name = "";
+        this.id = "";
         type = EntityType.NOT_DEFINED;
     }
 
@@ -50,6 +53,13 @@ public class OctaneEntity {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     *  @return - id of the entity (equivalent of the id field in Octane)
+     */
+    public String getId() {
+        return this.id;
     }
 
     /**
