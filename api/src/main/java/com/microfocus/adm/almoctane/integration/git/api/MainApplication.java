@@ -38,13 +38,13 @@ public class MainApplication extends SpringBootServletInitializer {
 
         try {
             configurationFileProperties = CommonUtils.loadProperties("configuration.properties");
+            initLogs(configurationFileProperties);
             Factory.getInstance();
             OctanePool.getPool();
         } catch (IOException | OctanePoolException e) {
             throw new RuntimeException("Please provide a correct configuration file in the conf folder!", e);
         }
 
-        initLogs(configurationFileProperties);
     }
 
     public static void main(String[] args) {
