@@ -36,16 +36,18 @@ public class CommonUtils {
         Properties properties = new Properties();
         FileInputStream configFileStream = null;
 
-        File file = new File(Factory.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        try {
+            File jarFile = new File(CommonUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-        String inputFilePath = String.format("%s%s%s%s%s",
-                file.getParentFile().getParentFile().getParent(),
-                File.separator, "conf",
-                File.separator,
-                propertyFileName);
-
-        InputStream input = new FileInputStream(inputFilePath);
-        properties.load(input);
+            configFileStream = new FileInputStream(jarFile.getParentFile().getParentFile().getParentFile().toPath().resolve("conf").resolve(propertyFileName).toFile());
+            properties.load(configFileStream);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Error getting the configuration file", e);
+        } finally {
+            if (configFileStream != null) {
+                configFileStream.close();
+            }
+        }
 
         return properties;
     }

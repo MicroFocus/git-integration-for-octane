@@ -60,7 +60,7 @@ public class MainApplication extends SpringBootServletInitializer {
         String logsLocation = configurationFileProperties.getProperty("logs.location");
 
         if (logsLocation != null) {
-//            logsLocation = logsLocation;
+            logsLocation = logsLocation.trim();
             if (new File(logsLocation).exists()) {
                 System.setProperty("git-integration-for-octane-log-folder", logsLocation);
                 LoggerFactory.getLogger(MainApplication.class).info(String.format("Logs location: %s/octane_utility_logs folder", logsLocation));
