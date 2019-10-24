@@ -112,7 +112,6 @@ public class OctaneActionController {
         return new ModelAndView("OctaneResponse", model);
     }
 
-
     private static void setModelAttributes(ModelMap model,
                                            List<String> ids,
                                            String dialogId,

@@ -17,7 +17,7 @@ package com.microfocus.adm.almoctane.integration.git.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
@@ -34,6 +34,7 @@ public class CommonUtils {
      */
     public static Properties loadProperties(String propertyFileName) throws IOException {
         Properties properties = new Properties();
+        FileInputStream configFileStream = null;
 
         File file = new File(Factory.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 

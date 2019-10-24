@@ -73,7 +73,7 @@ public class OctanePool {
     public GoogleHttpClient getOctaneHttpClient(long sharedSpace, String url) {
         verifyURL(url);
 
-        GoogleHttpClient googleHttpClient = new GoogleHttpClient(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER));
+        GoogleHttpClient googleHttpClient = new GoogleHttpClient(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER).trim());
         googleHttpClient.authenticate(new SimpleUserAuthentication(
                 octaneSharedSpaceAndUsersMap.get(sharedSpace).getUser(),
                 octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_MQM_UI"));
@@ -113,7 +113,7 @@ public class OctanePool {
                     new SimpleClientAuthentication(
                             octaneSharedSpaceAndUsersMap.get(sharedSpace).getUser(),
                             octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_MQM_UI"))
-                    .Server(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER))
+                    .Server(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER).trim())
                     .sharedSpace(sharedSpace)
                     .workSpace(workspace)
                     .build();
@@ -138,7 +138,7 @@ public class OctanePool {
      * @param url - The url of Octane which will be checked.
      */
     private void verifyURL(String url) {
-        String serverURL = properties.getProperty(PropertiesFileKeys.OCTANE_SERVER);
+        String serverURL = properties.getProperty(PropertiesFileKeys.OCTANE_SERVER).trim();
 
         if (!url.equals(serverURL)) {
             throw new OctanePoolException(String.format("Error while verifying octane URL." +
@@ -182,7 +182,11 @@ public class OctanePool {
         String[] passwords = properties.getProperty(PropertiesFileKeys.OCTANE_PASSWORD).split(",");
 
         for (int i = 0; i < sharedSpaces.length; i++) {
-            octaneSharedSpaceAndUsersMap.put(Long.valueOf(sharedSpaces[i]), new OctaneUser(users[i], passwords[i]));
+            try {
+                octaneSharedSpaceAndUsersMap.put(Long.valueOf(sharedSpaces[i].trim()), new OctaneUser(users[i].trim(), passwords[i].trim()));
+            } catch(NumberFormatException e) {
+                throw new OctanePoolException("Please provide a valid shared space number in the configuration file.", e);
+            }
         }
     }
 }

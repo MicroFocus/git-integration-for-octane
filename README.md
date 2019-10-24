@@ -39,14 +39,16 @@ To generate the war please execute the ```mvn package``` goal on the root module
 server you are free to do so. 
 
 After generating the war you can read the Deployment section from the user guide, which you find in the 
-[documentation](docs/Git_Integration_For_Octane_Installation_Guide-v1.1.1.pdf).
+[documentation](docs/Git_Integration_For_Octane_Installation_Guide-v1.1.2.pdf).
 
 ### Documentation
 
 In case of any troubles, please read the user guide, found in the 
-[documentation](/docs/Git_Integration_For_Octane_User_Guide-v1.1.1.pdf).
+[documentation](/docs/Git_Integration_For_Octane_User_Guide-v1.1.2.pdf).
 
 ### What's New
+* v1.1.2
+    
 * v1.1.1
     * Branches are created with a name having the following pattern: <octane_entity_id>-<octane_entity_name>
     * Created the "logs.location" property to the configuration file. This allows the user to configure the location for the log files.
