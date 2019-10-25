@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
 
@@ -42,6 +43,7 @@ import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.Octane
  */
 public class OctaneRequestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OctaneRequestService.class);
+    private static ReentrantLock lock = new ReentrantLock();
 
     private GoogleHttpClient googleHttpClient;
     private String server;
@@ -178,16 +180,21 @@ public class OctaneRequestService {
      * @param udfLabel - The label of the memo UDF
      */
     private void createUdfIdNotPresent(String udfName, String udfLabel) {
-        for (String entityType : entityTypes) {
-            EntityModel udf =
-                    getUDFByNameAndEntityType(udfName, entityType);
-            if (udf == null) {
-                LOGGER.info(String.format("Creating udf with name %s and label %s for work_items", udfName, udfLabel));
+        lock.lock();
+        try {
+            for (String entityType : entityTypes) {
+                EntityModel udf =
+                        getUDFByNameAndEntityType(udfName, entityType);
+                if (udf == null) {
+                    LOGGER.info(String.format("Creating udf with name %s and label %s for work_items", udfName, udfLabel));
 
-                createUdf(udfName, udfLabel, entityType);
+                    createUdf(udfName, udfLabel, entityType);
+                }
             }
+        } finally {
+            lock.unlock();
+            googleHttpClient.signOut();
         }
-        googleHttpClient.signOut();
     }
 
     /**

@@ -48,7 +48,11 @@ In case of any troubles, please read the user guide, found in the
 
 ### What's New
 * v1.1.2
-    
+    * The configuration file is loaded at startup. Some of the flaws can be detected at startup resulting in an error which can be found in Tomcat/Jetty logs file.
+    * Bug fixes:
+        * Application was failing at startup in case the path to the .war file contained spaces.
+        * If two instances of the application were running in parallel in the same environment the log files wold be merged.
+        * If multiple entities were selected at the first use for the `Get Pull Requests/Get Branch Information` features, a race condition could occur. In this case some of the UDFs would be created but not necessarily updated.
 * v1.1.1
     * Branches are created with a name having the following pattern: <octane_entity_id>-<octane_entity_name>
     * Created the "logs.location" property to the configuration file. This allows the user to configure the location for the log files.
