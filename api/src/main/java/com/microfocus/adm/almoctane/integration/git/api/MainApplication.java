@@ -61,11 +61,13 @@ public class MainApplication extends SpringBootServletInitializer {
 
         if (logsLocation != null) {
             logsLocation = logsLocation.trim();
-            if (new File(logsLocation).exists()) {
+            File logsFolder = new File(logsLocation);
+            if (logsFolder.exists() && logsFolder.isDirectory()) {
                 System.setProperty("git-integration-for-octane-log-folder", logsLocation);
                 LoggerFactory.getLogger(MainApplication.class).info(String.format("Logs location: %s/octane_utility_logs folder", logsLocation));
             } else {
-                System.out.println("The path provided for the log files in the configuration file does not exist. The logs will be placed in the default location.");
+                System.out.println("The path provided for the log files in the configuration file does not " +
+                        "represent a path to an existing folder. The logs will be placed in the default location.");
                 setDefaultLogsLocation();
             }
         } else {
