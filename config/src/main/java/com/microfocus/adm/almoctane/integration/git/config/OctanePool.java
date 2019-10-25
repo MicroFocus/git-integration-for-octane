@@ -150,8 +150,8 @@ public class OctanePool {
      * Checks if the Octane connection has already been added to the pool.
      *
      * @param octaneObject - The Octane object.
-     * @return  - true if the connection has already been added to the pool.
-     *          - false otherwise.
+     * @return - true if the connection has already been added to the pool.
+     * - false otherwise.
      */
     private boolean isInPool(OctaneObject octaneObject) {
         return octaneObjects.containsKey(octaneObject);
@@ -181,10 +181,17 @@ public class OctanePool {
         String[] users = properties.getProperty(PropertiesFileKeys.OCTANE_USER).split(",");
         String[] passwords = properties.getProperty(PropertiesFileKeys.OCTANE_PASSWORD).split(",");
 
+        if (sharedSpaces.length != users.length || sharedSpaces.length != passwords.length)
+            throw new OctanePoolException(
+                    "There needs to be exactly one user and password pair for every shared space. " +
+                            "Number of shared spaces: " + sharedSpaces.length + ". " +
+                            "Number of users :" + users.length + ". " +
+                            "Number of passwords :" + passwords.length);
+
         for (int i = 0; i < sharedSpaces.length; i++) {
             try {
                 octaneSharedSpaceAndUsersMap.put(Long.valueOf(sharedSpaces[i].trim()), new OctaneUser(users[i].trim(), passwords[i].trim()));
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 throw new OctanePoolException("Please provide a valid shared space number in the configuration file.", e);
             }
         }
