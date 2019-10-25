@@ -16,6 +16,7 @@ package com.microfocus.adm.almoctane.integration.git.config;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -32,23 +33,29 @@ public class CommonUtils {
      * @return - The properties.
      * @throws IOException - In case the configuration file is named differently or does not exist.
      */
-    public static Properties loadProperties(String propertyFileName) throws IOException {
-        Properties properties = new Properties();
-        FileInputStream configFileStream = null;
+    public static Properties loadPropertiesFromConfFolder(String propertyFileName) throws IOException {
 
         try {
             File jarFile = new File(CommonUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-
-            configFileStream = new FileInputStream(jarFile.getParentFile().getParentFile().getParentFile().toPath().resolve("conf").resolve(propertyFileName).toFile());
-            properties.load(configFileStream);
+            File configurationFile = jarFile.getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .toPath().resolve("conf").resolve(propertyFileName)
+                    .toFile();
+            return loadPropertyFile(configurationFile);
         } catch (URISyntaxException e) {
             throw new RuntimeException("Error getting the configuration file", e);
-        } finally {
-            if (configFileStream != null) {
-                configFileStream.close();
-            }
         }
+    }
 
+
+    public static Properties loadPropertyFile(File file) throws IOException {
+        Properties properties = new Properties();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            properties.load(fileInputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return properties;
     }
 }

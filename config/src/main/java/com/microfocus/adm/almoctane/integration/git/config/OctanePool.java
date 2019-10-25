@@ -162,7 +162,7 @@ public class OctanePool {
      */
     private OctanePool() {
         try {
-            properties = CommonUtils.loadProperties(propertyFileName);
+            properties = CommonUtils.loadPropertiesFromConfFolder(propertyFileName);
 
             loadOctaneSharedSpaceAndUsersMap();
         } catch (IOException e) {

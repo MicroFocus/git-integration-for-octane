@@ -48,7 +48,7 @@ public class Factory {
      * @throws IOException - In case the configuration file is named differently or does not exist.
      */
     private Factory() throws IOException {
-        properties = CommonUtils.loadProperties(propertyFileName);
+        properties = CommonUtils.loadPropertiesFromConfFolder(propertyFileName);
 
         userDefinedFields = new HashMap<>();
 

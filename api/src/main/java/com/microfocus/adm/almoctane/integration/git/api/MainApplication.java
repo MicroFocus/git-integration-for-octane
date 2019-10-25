@@ -18,6 +18,7 @@ import com.microfocus.adm.almoctane.integration.git.config.CommonUtils;
 import com.microfocus.adm.almoctane.integration.git.config.Factory;
 import com.microfocus.adm.almoctane.integration.git.config.OctanePool;
 import com.microfocus.adm.almoctane.integration.git.config.OctanePoolException;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,7 +38,7 @@ public class MainApplication extends SpringBootServletInitializer {
         Properties configurationFileProperties;
 
         try {
-            configurationFileProperties = CommonUtils.loadProperties("configuration.properties");
+            configurationFileProperties = CommonUtils.loadPropertiesFromConfFolder("configuration.properties");
             initLogs(configurationFileProperties);
             Factory.getInstance();
             OctanePool.getPool();
@@ -57,22 +58,54 @@ public class MainApplication extends SpringBootServletInitializer {
     }
 
     private static void initLogs(Properties configurationFileProperties) {
-        String logsLocation = configurationFileProperties.getProperty("logs.location");
+        String pathToLogs = configurationFileProperties.getProperty("logs.location");
 
-        if (logsLocation != null) {
-            logsLocation = logsLocation.trim();
-            File logsFolder = new File(logsLocation);
-            if (logsFolder.exists() && logsFolder.isDirectory()) {
-                System.setProperty("git-integration-for-octane-log-folder", logsLocation);
-                LoggerFactory.getLogger(MainApplication.class).info(String.format("Logs location: %s/octane_utility_logs folder", logsLocation));
-            } else {
-                System.out.println("The path provided for the log files in the configuration file does not " +
-                        "represent a path to an existing folder. The logs will be placed in the default location.");
-                setDefaultLogsLocation();
-            }
-        } else {
+        //logs.location not set in the configuration file -> defaul
+        if (pathToLogs == null) {
             setDefaultLogsLocation();
+            return;
         }
+
+        pathToLogs = pathToLogs.trim().replace("\\", "/");
+        File logsFolder = new File(pathToLogs);
+
+
+        if (!logsFolder.exists() || !logsFolder.isDirectory()) {
+            System.out.println("The path provided for the log files in the configuration file does not " +
+                    "represent a path to an existing folder. The logs will be placed in the default location.");
+            setDefaultLogsLocation();
+            return;
+        }
+
+        setLog4jFileLocation(pathToLogs);
+        LoggerFactory.getLogger(MainApplication.class)
+                .info(String.format("Logs location: %s/octane_utility_logs folder", pathToLogs));
+
+    }
+
+    private static void setLog4jFileLocation(String pathToLogs) {
+        try {
+            Properties logsProperty = CommonUtils.loadPropertyFile(
+                    new File(MainApplication.class.getResource("/log4j.properties").toURI()));
+
+            //make sure path ends with "/"
+            pathToLogs = pathToLogs.endsWith("/") ? pathToLogs : pathToLogs + "/";
+
+            String logFileLocation = logsProperty.getProperty("log4j.appender.file.File");
+
+            if (logFileLocation != null) {
+                logFileLocation = logFileLocation.replaceAll("\\$\\{(.*)}/", pathToLogs);
+            } else {
+                logFileLocation = pathToLogs + "octane_utility_logs/octane_git_integration_logs.log";
+            }
+            logsProperty.setProperty("log4j.appender.file.File", logFileLocation);
+            PropertyConfigurator.configure(logsProperty);
+        } catch (IOException | URISyntaxException e) {
+            System.err.println("Could not read the logs property file");
+            System.err.println(e.getMessage());
+            System.err.println(Arrays.toString(e.getStackTrace()));
+        }
+
     }
 
     private static void setDefaultLogsLocation() {
@@ -81,10 +114,12 @@ public class MainApplication extends SpringBootServletInitializer {
 
             String logFolderPath = jarFile.getParentFile().getParentFile().toPath().toString();
 
-            System.setProperty("git-integration-for-octane-log-folder", logFolderPath);
-            LoggerFactory.getLogger(MainApplication.class).info(String.format("Installation folder: %s. The logs can be found in  the octane_utility_logs folder", logFolderPath));
+            setLog4jFileLocation(logFolderPath);
+
+            LoggerFactory.getLogger(MainApplication.class)
+                    .info(String.format("Installation folder: %s. The logs can be found in  the octane_utility_logs folder", logFolderPath));
         } catch (URISyntaxException e) {
-            System.out.println("Logs folder could not be initialized!");
+            System.out.println("Default logs folder could not be initialized!");
             System.out.println(e.getMessage());
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
