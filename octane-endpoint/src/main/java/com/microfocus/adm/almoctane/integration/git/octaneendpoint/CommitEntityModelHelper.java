@@ -20,7 +20,7 @@ import com.microfocus.adm.almoctane.integration.git.common.entities.Commit;
 
 import java.util.function.Function;
 
-import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
+import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneField.*;
 
 /**
  * Facilitates the work with EntityModels that are commits.

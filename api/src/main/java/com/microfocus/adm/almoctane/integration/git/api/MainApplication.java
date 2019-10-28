@@ -45,7 +45,6 @@ public class MainApplication extends SpringBootServletInitializer {
         } catch (IOException | OctanePoolException e) {
             throw new RuntimeException("Please provide a correct configuration file in the conf folder!", e);
         }
-
     }
 
     public static void main(String[] args) {
