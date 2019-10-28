@@ -17,7 +17,7 @@ package com.microfocus.adm.almoctane.integration.git.octaneendpoint;
 /**
  * Octane fields
  */
-public class OctaneFields {
+public class OctaneField {
 
     static final String URL = "url";
     static final String NAME = "name";

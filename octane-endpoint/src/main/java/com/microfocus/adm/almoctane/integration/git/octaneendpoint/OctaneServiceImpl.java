@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
+import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneField.*;
 
 /**
  * This class is using the OctaneRequestService to make requests to Octane

@@ -30,20 +30,19 @@ import org.json.JSONPointer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneFields.*;
+import static com.microfocus.adm.almoctane.integration.git.octaneendpoint.OctaneField.*;
 
 /**
  * This class is used for making Octane requests.
  */
 public class OctaneRequestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OctaneRequestService.class);
-    private static ReentrantLock lock = new ReentrantLock();
+    private static ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Map<String, UdfInformation> udfInformationMap = new HashMap<>();
 
     private GoogleHttpClient googleHttpClient;
     private String server;
@@ -132,7 +131,7 @@ public class OctaneRequestService {
      * @param udfLabel    - The label of the UDF.
      */
     public void updateEntityModel(String id, EntityModel entityModel, String udfName, String udfLabel) {
-        createUdfIdNotPresent(udfName, udfLabel);
+        createUdfIfNotPresent(udfName, udfLabel);
 
         try {
             octane.entityList(WORK_ITEMS).at(id).update().entity(entityModel).execute();
@@ -179,20 +178,37 @@ public class OctaneRequestService {
      * @param udfName  - The name of the memo UDF.
      * @param udfLabel - The label of the memo UDF
      */
-    private void createUdfIdNotPresent(String udfName, String udfLabel) {
-        lock.lock();
+    private void createUdfIfNotPresent(String udfName, String udfLabel) {
+        lock.readLock().lock();
+        if (udfInformationMap.containsKey(udfName)) {
+            lock.readLock().unlock();
+            return;
+        }
+        lock.readLock().unlock();
+
+        lock.writeLock().lock();
+        if (udfInformationMap.containsKey(udfName)) {
+            lock.writeLock().unlock();
+            return;
+        }
+
+        udfInformationMap.put(udfName, new UdfInformation());
         try {
             for (String entityType : entityTypes) {
-                EntityModel udf =
-                        getUDFByNameAndEntityType(udfName, entityType);
-                if (udf == null) {
-                    LOGGER.info(String.format("Creating udf with name %s and label %s for work_items", udfName, udfLabel));
-
-                    createUdf(udfName, udfLabel, entityType);
+                if (!udfInformationMap.get(udfName).isCreated(entityType)) {
+                    EntityModel udf =
+                            getUDFByNameAndEntityType(udfName, entityType);
+                    if (udf == null) {
+                        LOGGER.info(String.format("Creating udf with name %s and label %s for work_items", udfName, udfLabel));
+                        createUdf(udfName, udfLabel, entityType);
+                        udfInformationMap.get(udfName).updateCreationStatus(entityType, true);
+                    } else {
+                        udfInformationMap.get(udfName).updateCreationStatus(entityType, true);
+                    }
                 }
             }
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
             googleHttpClient.signOut();
         }
     }
