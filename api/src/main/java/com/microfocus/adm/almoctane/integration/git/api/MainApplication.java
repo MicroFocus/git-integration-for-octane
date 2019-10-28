@@ -26,8 +26,10 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -60,7 +62,7 @@ public class MainApplication extends SpringBootServletInitializer {
     private static void initLogs(Properties configurationFileProperties) {
         String pathToLogs = configurationFileProperties.getProperty("logs.location");
 
-        //logs.location not set in the configuration file -> defaul
+        //logs.location not set in the configuration file -> default
         if (pathToLogs == null) {
             setDefaultLogsLocation();
             return;
@@ -77,35 +79,40 @@ public class MainApplication extends SpringBootServletInitializer {
             return;
         }
 
-        setLog4jFileLocation(pathToLogs);
-        LoggerFactory.getLogger(MainApplication.class)
-                .info(String.format("Logs location: %s/octane_utility_logs folder", pathToLogs));
-
-    }
-
-    private static void setLog4jFileLocation(String pathToLogs) {
         try {
-            Properties logsProperty = CommonUtils.loadPropertyFile(
-                    new File(MainApplication.class.getResource("/log4j.properties").toURI()));
+            setLog4jFileLocation(pathToLogs);
+            LoggerFactory.getLogger(MainApplication.class)
+                    .info(String.format("Logs location: %s/octane_utility_logs folder", pathToLogs));
 
-            //make sure path ends with "/"
-            pathToLogs = pathToLogs.endsWith("/") ? pathToLogs : pathToLogs + "/";
-
-            String logFileLocation = logsProperty.getProperty("log4j.appender.file.File");
-
-            if (logFileLocation != null) {
-                logFileLocation = logFileLocation.replaceAll("\\$\\{(.*)}/", pathToLogs);
-            } else {
-                logFileLocation = pathToLogs + "octane_utility_logs/octane_git_integration_logs.log";
-            }
-            logsProperty.setProperty("log4j.appender.file.File", logFileLocation);
-            PropertyConfigurator.configure(logsProperty);
         } catch (IOException | URISyntaxException e) {
-            System.err.println("Could not read the logs property file");
-            System.err.println(e.getMessage());
+            System.err.println("Could not initialize the logs: " + e.getMessage());
             System.err.println(Arrays.toString(e.getStackTrace()));
         }
 
+    }
+
+    private static void setLog4jFileLocation(String pathToLogs) throws IOException, URISyntaxException {
+        URL log4jPropertyUrl = MainApplication.class.getResource("/log4j.properties");
+        if (log4jPropertyUrl == null)
+            throw new FileNotFoundException("Could not find Log4j property file");
+        Properties logsProperty = CommonUtils.loadPropertyFile(new File(log4jPropertyUrl.toURI()));
+
+        pathToLogs = pathToLogs.replace("\\", "/");
+
+        //make sure path ends with "/"
+        if (!pathToLogs.endsWith("/"))
+            pathToLogs = pathToLogs + "/";
+
+        String logFileLocation = logsProperty.getProperty("log4j.appender.file.File");
+
+        if (logFileLocation != null) {
+            //replace "${...}/" with actual folder path
+            logFileLocation = logFileLocation.replaceAll("\\$\\{(.*)}/", pathToLogs);
+        } else {
+            logFileLocation = pathToLogs + "octane_utility_logs/octane_git_integration_logs.log";
+        }
+        logsProperty.setProperty("log4j.appender.file.File", logFileLocation);
+        PropertyConfigurator.configure(logsProperty);
     }
 
     private static void setDefaultLogsLocation() {
@@ -118,10 +125,9 @@ public class MainApplication extends SpringBootServletInitializer {
 
             LoggerFactory.getLogger(MainApplication.class)
                     .info(String.format("Installation folder: %s. The logs can be found in  the octane_utility_logs folder", logFolderPath));
-        } catch (URISyntaxException e) {
-            System.out.println("Default logs folder could not be initialized!");
-            System.out.println(e.getMessage());
-            System.out.println(Arrays.toString(e.getStackTrace()));
+        } catch (URISyntaxException | IOException e) {
+            System.err.println("Default logs folder could not be initialized:" + e.getMessage());
+            System.err.println(Arrays.toString(e.getStackTrace()));
         }
     }
 }
