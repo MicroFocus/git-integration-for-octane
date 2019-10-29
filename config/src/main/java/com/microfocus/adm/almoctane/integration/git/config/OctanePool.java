@@ -56,9 +56,7 @@ public class OctanePool {
 
         verifyURL(url);
 
-        if (!isInPool(octaneObject)) {
-            addOctane(sharedSpace, workspace, octaneObject);
-        }
+        addOctane(sharedSpace, workspace, octaneObject);
 
         return octaneObjects.get(octaneObject);
     }
@@ -102,7 +100,9 @@ public class OctanePool {
      * @param octaneObject - The OctaneObject which will be added to the octaneObjects list, to keep track of
      *                     the Octane connections
      */
-    private void addOctane(long sharedSpace, long workspace, OctaneObject octaneObject) {
+    private synchronized void addOctane(long sharedSpace, long workspace, OctaneObject octaneObject) {
+        if (isInPool(octaneObject))
+            return;
         LOGGER.info(String.format("Adding new Octane to the OctanePool. Shared space %s, workspace %s", sharedSpace, workspace));
         if (octaneSharedSpaceAndUsersMap.get(sharedSpace) == null) {
             throw new OctanePoolException("No credentials are set for the shared space " + sharedSpace + " and a request " +
