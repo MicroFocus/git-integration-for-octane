@@ -16,8 +16,9 @@ package com.microfocus.adm.almoctane.integration.git.config;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
@@ -32,20 +33,29 @@ public class CommonUtils {
      * @return - The properties.
      * @throws IOException - In case the configuration file is named differently or does not exist.
      */
-    public static Properties loadProperties(String propertyFileName) throws IOException {
+    public static Properties loadPropertiesFromConfFolder(String propertyFileName) throws IOException {
+
+        try {
+            File jarFile = new File(CommonUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            File configurationFile = jarFile.getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .toPath().resolve("conf").resolve(propertyFileName)
+                    .toFile();
+            return loadPropertyFile(configurationFile);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Error getting the configuration file", e);
+        }
+    }
+
+
+    public static Properties loadPropertyFile(File file) throws IOException {
         Properties properties = new Properties();
-
-        File file = new File(Factory.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-
-        String inputFilePath = String.format("%s%s%s%s%s",
-                file.getParentFile().getParentFile().getParent(),
-                File.separator, "conf",
-                File.separator,
-                propertyFileName);
-
-        InputStream input = new FileInputStream(inputFilePath);
-        properties.load(input);
-
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            properties.load(fileInputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return properties;
     }
 }

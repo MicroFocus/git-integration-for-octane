@@ -48,32 +48,32 @@ public class Factory {
      * @throws IOException - In case the configuration file is named differently or does not exist.
      */
     private Factory() throws IOException {
-        properties = CommonUtils.loadProperties(propertyFileName);
+        properties = CommonUtils.loadPropertiesFromConfFolder(propertyFileName);
 
         userDefinedFields = new HashMap<>();
 
-        userDefinedFields.put(OctaneUDF.Type.PULL_REQUEST, new OctaneUDF(properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_NAME),
-                properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_LABEL), OctaneUDF.Type.PULL_REQUEST));
+        userDefinedFields.put(OctaneUDF.Type.PULL_REQUEST, new OctaneUDF(properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_NAME).trim(),
+                properties.getProperty(PropertiesFileKeys.PULL_REQUESTS_INFORMATION_UDF_LABEL).trim(), OctaneUDF.Type.PULL_REQUEST));
 
-        userDefinedFields.put(OctaneUDF.Type.BRANCH, new OctaneUDF(properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_NAME),
-                properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_LABEL), OctaneUDF.Type.BRANCH));
+        userDefinedFields.put(OctaneUDF.Type.BRANCH, new OctaneUDF(properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_NAME).trim(),
+                properties.getProperty(PropertiesFileKeys.BRANCH_INFORMATION_UDF_LABEL).trim(), OctaneUDF.Type.BRANCH));
 
         String repoHost, server, access;
-        repoHost = properties.getProperty(PropertiesFileKeys.REPOSITORY_HOST);
+        repoHost = properties.getProperty(PropertiesFileKeys.REPOSITORY_HOST).trim();
 
         switch (repoHost) {
             case PropertiesFileKeys.BITBUCKET_SERVER:
                 String urlKey = repoHost + PropertiesFileKeys._URL;
                 String accessKey = repoHost + PropertiesFileKeys._ACCESS;
-                server = properties.getProperty(urlKey);
-                access = properties.getProperty(accessKey);
+                server = properties.getProperty(urlKey).trim();
+                access = properties.getProperty(accessKey).trim();
                 if (server.equals("") || access.equals(""))
                     throw new FactoryException(repoHost, urlKey, accessKey);
                 HttpTransport httpTransport = HttpTransporter.getInstance().getHttpTransport();
                 implementation = new BitbucketRepositoryConnectionAdapter(server, access, httpTransport);
                 break;
             default:
-                throw new IOException("Configuration file contains an unknown host name");
+                throw new IOException("Configuration file contains an unknown " + PropertiesFileKeys.REPOSITORY_HOST + " name. Actual value: " + repoHost);
         }
 
         setProxy();
@@ -121,11 +121,11 @@ public class Factory {
      */
     private static void setProxy() {
         if (properties.containsKey(PropertiesFileKeys.PROXY_HOST) && properties.containsKey(PropertiesFileKeys.PROXY_PORT)) {
-            System.setProperty("http.proxyHost", properties.getProperty(PropertiesFileKeys.PROXY_HOST));
-            System.setProperty("http.proxyPort", properties.getProperty(PropertiesFileKeys.PROXY_PORT));
+            System.setProperty("http.proxyHost", properties.getProperty(PropertiesFileKeys.PROXY_HOST).trim());
+            System.setProperty("http.proxyPort", properties.getProperty(PropertiesFileKeys.PROXY_PORT).trim());
 
-            System.setProperty("https.proxyHost", properties.getProperty(PropertiesFileKeys.PROXY_HOST));
-            System.setProperty("https.proxyPort", properties.getProperty(PropertiesFileKeys.PROXY_PORT));
+            System.setProperty("https.proxyHost", properties.getProperty(PropertiesFileKeys.PROXY_HOST).trim());
+            System.setProperty("https.proxyPort", properties.getProperty(PropertiesFileKeys.PROXY_PORT).trim());
         }
     }
 }

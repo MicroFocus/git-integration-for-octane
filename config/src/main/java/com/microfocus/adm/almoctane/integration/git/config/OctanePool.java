@@ -56,9 +56,7 @@ public class OctanePool {
 
         verifyURL(url);
 
-        if (!isInPool(octaneObject)) {
-            addOctane(sharedSpace, workspace, octaneObject);
-        }
+        addOctane(sharedSpace, workspace, octaneObject);
 
         return octaneObjects.get(octaneObject);
     }
@@ -73,10 +71,10 @@ public class OctanePool {
     public GoogleHttpClient getOctaneHttpClient(long sharedSpace, String url) {
         verifyURL(url);
 
-        GoogleHttpClient googleHttpClient = new GoogleHttpClient(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER));
+        GoogleHttpClient googleHttpClient = new GoogleHttpClient(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER).trim());
         googleHttpClient.authenticate(new SimpleUserAuthentication(
                 octaneSharedSpaceAndUsersMap.get(sharedSpace).getUser(),
-                octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_MQM_UI"));
+                octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_REST_API_TECH_PREVIEW"));
 
         return googleHttpClient;
     }
@@ -102,7 +100,9 @@ public class OctanePool {
      * @param octaneObject - The OctaneObject which will be added to the octaneObjects list, to keep track of
      *                     the Octane connections
      */
-    private void addOctane(long sharedSpace, long workspace, OctaneObject octaneObject) {
+    private synchronized void addOctane(long sharedSpace, long workspace, OctaneObject octaneObject) {
+        if (isInPool(octaneObject))
+            return;
         LOGGER.info(String.format("Adding new Octane to the OctanePool. Shared space %s, workspace %s", sharedSpace, workspace));
         if (octaneSharedSpaceAndUsersMap.get(sharedSpace) == null) {
             throw new OctanePoolException("No credentials are set for the shared space " + sharedSpace + " and a request " +
@@ -112,8 +112,8 @@ public class OctanePool {
             Octane octane = new Octane.Builder(
                     new SimpleClientAuthentication(
                             octaneSharedSpaceAndUsersMap.get(sharedSpace).getUser(),
-                            octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_MQM_UI"))
-                    .Server(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER))
+                            octaneSharedSpaceAndUsersMap.get(sharedSpace).getPassword(), "HPE_REST_API_TECH_PREVIEW"))
+                    .Server(properties.getProperty(PropertiesFileKeys.OCTANE_SERVER).trim())
                     .sharedSpace(sharedSpace)
                     .workSpace(workspace)
                     .build();
@@ -138,7 +138,7 @@ public class OctanePool {
      * @param url - The url of Octane which will be checked.
      */
     private void verifyURL(String url) {
-        String serverURL = properties.getProperty(PropertiesFileKeys.OCTANE_SERVER);
+        String serverURL = properties.getProperty(PropertiesFileKeys.OCTANE_SERVER).trim();
 
         if (!url.equals(serverURL)) {
             throw new OctanePoolException(String.format("Error while verifying octane URL." +
@@ -150,8 +150,8 @@ public class OctanePool {
      * Checks if the Octane connection has already been added to the pool.
      *
      * @param octaneObject - The Octane object.
-     * @return  - true if the connection has already been added to the pool.
-     *          - false otherwise.
+     * @return - true if the connection has already been added to the pool.
+     * - false otherwise.
      */
     private boolean isInPool(OctaneObject octaneObject) {
         return octaneObjects.containsKey(octaneObject);
@@ -162,7 +162,7 @@ public class OctanePool {
      */
     private OctanePool() {
         try {
-            properties = CommonUtils.loadProperties(propertyFileName);
+            properties = CommonUtils.loadPropertiesFromConfFolder(propertyFileName);
 
             loadOctaneSharedSpaceAndUsersMap();
         } catch (IOException e) {
@@ -181,8 +181,19 @@ public class OctanePool {
         String[] users = properties.getProperty(PropertiesFileKeys.OCTANE_USER).split(",");
         String[] passwords = properties.getProperty(PropertiesFileKeys.OCTANE_PASSWORD).split(",");
 
+        if (sharedSpaces.length != users.length || sharedSpaces.length != passwords.length)
+            throw new OctanePoolException(
+                    "There needs to be exactly one user and password pair for every shared space. " +
+                            "Number of shared spaces: " + sharedSpaces.length + ". " +
+                            "Number of users :" + users.length + ". " +
+                            "Number of passwords :" + passwords.length);
+
         for (int i = 0; i < sharedSpaces.length; i++) {
-            octaneSharedSpaceAndUsersMap.put(Long.valueOf(sharedSpaces[i]), new OctaneUser(users[i], passwords[i]));
+            try {
+                octaneSharedSpaceAndUsersMap.put(Long.valueOf(sharedSpaces[i].trim()), new OctaneUser(users[i].trim(), passwords[i].trim()));
+            } catch (NumberFormatException e) {
+                throw new OctanePoolException("Please provide a valid shared space number in the configuration file.", e);
+            }
         }
     }
 }
